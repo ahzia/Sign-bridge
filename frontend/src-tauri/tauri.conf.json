@@ -1,9 +1,9 @@
 {
   "$schema": "../../node_modules/@tauri-apps/cli/schema.json",
-  "productName": "frontend",
+  "productName": "SignBridge",
   "version": "0.1.0",
   "identifier": "com.yourname.frontend",
-  "mainBinaryName": "frontend",
+  "mainBinaryName": "SignBridge",
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build:frontend",
@@ -20,9 +20,9 @@
     },
     "windows": [
       {
-        "title": "frontend",
-        "width": 800,
-        "height": 600,
+        "title": "SignBridge",
+        "width": 1280,
+        "height": 900,
         "resizable": true,
         "fullscreen": false,
         "dragDropEnabled": false

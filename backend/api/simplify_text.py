@@ -25,7 +25,7 @@ async def simplify_text(request: TextRequest):
     payload = {
         "model": "llama3-70b-8192",
         "messages": [
-            {"role": "user", "content": f"Simplify this text: {request.text}"}
+            {"role": "user", "content": f"Simplify this text in one short sentence, and only return me the Simplify text nothing it should not contain any bulit points, it should be just a sentence here is the text: {request.text}"}
         ]
     }
     try:
