@@ -145,27 +145,27 @@ function App() {
     <div className="min-h-screen transition-all duration-300">
       {/* Enhanced Header */}
       <header className="glass border-b border-theme-primary sticky top-0 z-30 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-row sm:flex-row items-center sm:items-center justify-between sm:justify-between gap-y-0">
             {/* Enhanced Branding */}
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1">
+              <div className="w-7 h-7 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <svg className="w-4 h-4 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent truncate max-w-[110px] sm:max-w-none">
                   SignBridge
                 </h1>
-                <p className="text-sm text-theme-secondary font-medium">AI-Powered Voice-to-Sign Translator</p>
+                <p className="text-[10px] sm:text-sm text-theme-secondary font-medium truncate max-w-[110px] sm:max-w-none">AI-Powered Voice-to-Sign Translator</p>
               </div>
             </div>
             
             {/* Enhanced Header Controls */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0">
               {/* Simplify Text Toggle - Enhanced */}
-              <label className="flex items-center gap-3 cursor-pointer group">
+              <label className="hidden sm:flex items-center gap-1 sm:gap-3 cursor-pointer group">
                 <div className="relative flex items-center">
                   <input
                     type="checkbox"
@@ -173,19 +173,19 @@ function App() {
                     onChange={(e) => setSimplifyText(e.target.checked)}
                     className="sr-only"
                   />
-                  <div className={`w-11 h-6 rounded-full transition-colors duration-200 flex items-center ${
+                  <div className={`w-7 h-4 sm:w-11 sm:h-6 rounded-full transition-colors duration-200 flex items-center ${
                     simplifyText ? 'bg-primary-500' : 'bg-secondary-300'
                   }`}>
-                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-                      simplifyText ? 'translate-x-5' : 'translate-x-0'
+                    <div className={`w-3 h-3 sm:w-5 sm:h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
+                      simplifyText ? 'translate-x-3 sm:translate-x-5' : 'translate-x-0'
                     }`}></div>
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-theme-secondary group-hover:text-primary-600 transition-colors">
+                  <span className="text-xs sm:text-sm font-semibold text-theme-secondary group-hover:text-primary-600 transition-colors whitespace-nowrap">
                     Simplify Text
                   </span>
-                  <span className="text-xs text-theme-muted">Optimize for translation</span>
+                  <span className="hidden sm:inline text-xs text-theme-muted">Optimize for translation</span>
                 </div>
               </label>
               
@@ -217,44 +217,43 @@ function App() {
           
           {/* Input Section - Enhanced */}
           <div className="xl:col-span-5 h-full">
-            <div className="card h-full flex flex-col shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
-              <div className="pb-6 border-b border-theme-primary">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card h-full flex flex-col bg-white dark:bg-theme-secondary shadow-sm sm:shadow-xl hover:shadow-md sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
+              <div className="pb-3 sm:pb-6 border-b border-theme-primary">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary-100 rounded-xl sm:rounded-lg flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-theme-primary">
+                    <h2 className="text-base sm:text-xl font-bold text-theme-primary">
                       Input Text
                     </h2>
-                    <p className="text-sm text-theme-secondary">
+                    <p className="text-xs sm:text-sm text-theme-secondary">
                       Type or speak your message to translate
                     </p>
                   </div>
                 </div>
               </div>
-              
-              <div className="flex-1 flex flex-col pt-6">
+              <div className="flex-1 flex flex-col pt-2 sm:pt-6">
                 {isTranscribing ? (
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-16 h-16 loading-spinner mx-auto mb-4"></div>
-                      <p className="text-sm font-medium text-theme-secondary mb-2">Processing voice recording...</p>
-                      <p className="text-xs text-theme-muted">Converting speech to text</p>
+                      <div className="w-8 h-8 sm:w-16 sm:h-16 loading-spinner mx-auto mb-2 sm:mb-4"></div>
+                      <p className="text-xs sm:text-sm font-medium text-theme-secondary mb-1 sm:mb-2">Processing voice recording...</p>
+                      <p className="text-[10px] sm:text-xs text-theme-muted">Converting speech to text</p>
                     </div>
                   </div>
                 ) : (
                   <div className="relative flex-1">
                     <textarea
-                      className="w-full h-full resize-none bg-theme-input border-2 border-theme-input rounded-xl p-4 text-theme-primary placeholder-theme-placeholder focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 text-base leading-relaxed"
+                      className="w-full h-full resize-none bg-theme-input border border-theme-input sm:border-2 rounded-xl sm:rounded-xl p-2 sm:p-4 text-theme-primary placeholder-theme-placeholder focus:border-primary-500 focus:ring-2 sm:focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 text-sm sm:text-base leading-relaxed min-h-[120px] sm:min-h-[180px]"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       placeholder="Type your message here or use voice recording to get started..."
                       aria-label="Input text for translation"
                     />
-                    <div className="absolute bottom-4 right-4 flex items-center gap-2 text-xs text-theme-muted">
+                    <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-theme-muted">
                       <span>{inputText.length} characters</span>
                       <div className="w-1 h-1 bg-secondary-300 rounded-full"></div>
                       <span>Press Enter to translate</span>
@@ -263,46 +262,46 @@ function App() {
                 )}
                 
                 {/* Enhanced Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <div className="flex flex-row gap-2 sm:gap-4 mt-3 sm:mt-6">
                   <button
                     onClick={handleRecordClick}
-                    className="group relative flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="group relative flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold p-2 sm:py-4 sm:px-6 rounded-xl sm:rounded-xl shadow-sm sm:shadow-lg hover:shadow-md sm:hover:shadow-xl flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base sm:text-base min-w-0"
                     aria-pressed={isRecording}
                     aria-label="Start recording"
                     disabled={isRecording || isTranscribing}
                   >
                     <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                    <div className="relative flex items-center justify-center gap-3">
-                      <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="relative flex items-center justify-center">
+                      <div className="w-7 h-7 sm:w-5 sm:h-5 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <span>{isRecording ? 'Recording...' : 'Record Voice'}</span>
+                      <span className="hidden sm:inline ml-2">{isRecording ? 'Recording...' : 'Record Voice'}</span>
                     </div>
                   </button>
                   
                   <button
                     onClick={() => triggerTranslation(inputText)}
                     disabled={isTranslating || isTranscribing || inputText.trim() === ''}
-                    className="group relative flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="group relative flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold p-2 sm:py-4 sm:px-6 rounded-xl sm:rounded-xl shadow-sm sm:shadow-lg hover:shadow-md sm:hover:shadow-xl flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base sm:text-base min-w-0"
                     aria-label="Translate text"
                   >
                     <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                    <div className="relative flex items-center justify-center gap-3">
+                    <div className="relative flex items-center justify-center">
                       {isTranslating ? (
                         <>
-                          <div className="w-5 h-5 loading-spinner" style={{borderTopColor: 'white', borderRightColor: 'white', borderWidth: '2px'}}></div>
-                          <span>Translating...</span>
+                          <div className="w-7 h-7 sm:w-5 sm:h-5 loading-spinner" style={{borderTopColor: 'white', borderRightColor: 'white', borderWidth: '2px'}}></div>
+                          <span className="hidden sm:inline ml-2">Translating...</span>
                         </>
                       ) : (
                         <>
-                          <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-7 h-7 sm:w-5 sm:h-5 bg-white/20 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
                           </div>
-                          <span>Translate</span>
+                          <span className="hidden sm:inline ml-2">Translate</span>
                         </>
                       )}
                     </div>
@@ -314,61 +313,66 @@ function App() {
 
           {/* SignWriting Display - Enhanced */}
           <div className="xl:col-span-3 h-full">
-            <div className="card h-full flex flex-col shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
-              <div className="pb-6 border-b border-theme-primary">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card h-full flex flex-col bg-white dark:bg-theme-secondary shadow-sm sm:shadow-xl hover:shadow-md sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
+              <div className="pb-3 sm:pb-6 border-b border-theme-primary">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-purple-100 rounded-xl sm:rounded-lg flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-theme-primary">
+                    <h2 className="text-base sm:text-lg font-bold text-theme-primary">
                       SignWriting
                     </h2>
-                    <p className="text-xs text-theme-secondary">
+                    <p className="text-xs sm:text-xs text-theme-secondary">
                       Visual notation system
                     </p>
                   </div>
                 </div>
               </div>
-              
-              <div className="flex-1 pt-6">
+              <div className="flex-1 pt-2 sm:pt-6">
                 {/* Status and counter - positioned outside scrollable area, always visible */}
-                <div className="flex items-center justify-between mb-4 px-2">
-                  <span className="text-xs font-medium text-theme-secondary">
+                <div className="flex items-center justify-between mb-2 sm:mb-4 px-1 sm:px-2">
+                  <span className="text-[10px] sm:text-xs font-medium text-theme-secondary">
                     {isGeneratingSigns ? 'Processing...' : `${signWriting.length} sign${signWriting.length !== 1 ? 's' : ''}`}
                   </span>
                   <div className="flex items-center gap-1">
                     <div className={`w-2 h-2 rounded-full ${isGeneratingSigns ? 'bg-warning-500 animate-pulse' : signWriting.length > 0 ? 'bg-success-500' : 'bg-secondary-400'}`}></div>
-                    <span className="text-xs text-theme-secondary">
+                    <span className="text-[10px] sm:text-xs text-theme-secondary">
                       {isGeneratingSigns ? 'Loading' : signWriting.length > 0 ? 'Ready' : 'Empty'}
                     </span>
                   </div>
                 </div>
-                
                 {isGeneratingSigns ? (
                   <div className="h-full flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-12 h-12 loading-spinner mx-auto mb-4" style={{borderTopColor: 'var(--purple-500)', borderRightColor: 'var(--purple-500)'}}></div>
-                      <p className="text-sm font-medium text-theme-secondary">Processing signs...</p>
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 loading-spinner mx-auto mb-2 sm:mb-4" style={{borderTopColor: 'var(--purple-500)', borderRightColor: 'var(--purple-500)'}}></div>
+                      <p className="text-xs sm:text-sm font-medium text-theme-secondary">Processing signs...</p>
                     </div>
                   </div>
                 ) : (
                   <div className="h-full flex flex-col">
-                    <div className="flex-1 scrollable-container">
-                      <SignWritingDisplay fswTokens={signWriting} style={{ background: 'var(--bg-secondary)' }} />
-                    </div>
-                    {/* Footer with instructions - only show when there are signs */}
-                    {signWriting.length > 0 && (
-                      <div className="mt-4 px-2">
-                        <div className="text-center">
-                          <p className="text-xs text-theme-muted">
-                            Hover for details • Scroll for more
-                          </p>
-                        </div>
+                    {/* Mobile only: placeholder or signs, never both */}
+                    <div className="block sm:hidden h-full overflow-x-auto px-2">
+                      <div className={signWriting.length === 0 ? 'flex justify-center items-center h-full w-full' : ''}>
+                        <SignWritingDisplay
+                          fswTokens={signWriting.length === 0 ? [] : signWriting}
+                          direction="row"
+                          className="w-full min-w-0 flex-row overflow-x-auto overflow-y-hidden h-full"
+                          signSize={32}
+                        />
                       </div>
-                    )}
+                    </div>
+                    {/* Desktop only: placeholder or signs, never both, with vertical scroll */}
+                    <div className="hidden sm:flex flex-col h-full max-h-[350px]">
+                      <SignWritingDisplay
+                        fswTokens={signWriting.length === 0 ? [] : signWriting}
+                        direction="col"
+                        className="w-full min-w-0 flex-col overflow-y-auto h-full"
+                        signSize={24}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -377,35 +381,35 @@ function App() {
 
           {/* Animation Section - Enhanced */}
           <div className="xl:col-span-4 h-full">
-            <div className="card h-full flex flex-col shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
-              <div className="pb-6 border-b border-theme-primary">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card h-full flex flex-col shadow-md sm:shadow-xl hover:shadow-lg sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
+              <div className="pb-3 sm:pb-6 border-b border-theme-primary">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-100 rounded-xl sm:rounded-lg flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-theme-primary">
+                    <h2 className="text-base sm:text-xl font-bold text-theme-primary">
                       Animation
                     </h2>
-                    <p className="text-sm text-theme-secondary">
+                    <p className="text-xs sm:text-sm text-theme-secondary">
                       Sign language animation
                     </p>
                   </div>
                 </div>
               </div>
               
-              <div className="flex-1 pt-6">
+              <div className="flex-1 pt-2 sm:pt-6">
                 {/* Status bar - show when no animation or when translating */}
                 {(!poseFile || isGeneratingAnimation) && (
-                  <div className="flex items-center justify-between mb-4 px-2">
-                    <span className="text-xs font-medium text-theme-secondary">
+                  <div className="flex items-center justify-between mb-2 sm:mb-4 px-1 sm:px-2">
+                    <span className="text-[10px] sm:text-xs font-medium text-theme-secondary">
                       Animation
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       <div className={`w-2 h-2 rounded-full ${isGeneratingAnimation ? 'bg-warning-500 animate-pulse' : 'bg-secondary-400'}`}></div>
-                      <span className="text-xs text-theme-secondary">
+                      <span className="text-[10px] sm:text-xs text-theme-secondary">
                         {isGeneratingAnimation ? 'Loading' : 'Empty'}
                       </span>
                     </div>
@@ -415,22 +419,22 @@ function App() {
                 <div className="flex items-center justify-center h-full">
                   {isGeneratingAnimation ? (
                     <div className="text-center">
-                      <div className="w-16 h-16 loading-spinner mx-auto mb-4" style={{borderTopColor: 'var(--indigo-500)', borderRightColor: 'var(--indigo-500)'}}></div>
-                      <p className="text-sm font-medium text-theme-secondary">Generating animation...</p>
+                      <div className="w-10 h-10 sm:w-16 sm:h-16 loading-spinner mx-auto mb-2 sm:mb-4" style={{borderTopColor: 'var(--indigo-500)', borderRightColor: 'var(--indigo-500)'}}></div>
+                      <p className="text-xs sm:text-sm font-medium text-theme-secondary">Generating animation...</p>
                     </div>
                   ) : poseFile ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <PoseViewer poseFile={poseFile} onAnimationComplete={() => {}} isTranslating={isGeneratingAnimation} style={{ background: 'var(--bg-secondary)' }} />
                     </div>
                   ) : (
-                    <div className="text-center text-theme-muted">
-                      <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--bg-secondary)' }}>
-                        <svg className="w-10 h-10 text-secondary-400 dark:text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex flex-col items-center justify-center h-full w-full py-6 sm:py-0 text-center text-theme-muted">
+                      <div className="w-10 h-10 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-1 sm:mb-4" style={{ background: 'var(--bg-secondary)' }}>
+                        <svg className="w-5 h-5 sm:w-10 sm:h-10 text-secondary-400 dark:text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
-                      <p className="text-sm font-medium mb-1">No animation available</p>
-                      <p className="text-xs">Translate text to see animation</p>
+                      <p className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">No animation available</p>
+                      <p className="text-[9px] sm:text-xs">Translate text to see animation</p>
                     </div>
                   )}
                 </div>
@@ -455,7 +459,7 @@ function App() {
 
         {/* Transcription Display */}
         {transcription && (
-          <div className="mt-6 animate-fade-in">
+          <div className="mt-6 animate-fade-in hidden sm:block">
             <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <svg className="w-5 h-5 text-primary-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
