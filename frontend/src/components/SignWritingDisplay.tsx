@@ -5,9 +5,12 @@ import SignWritingService from '../services/SignWritingService';
 
 interface SignWritingDisplayProps {
   fswTokens: string[];
+  direction?: 'row' | 'col';
+  className?: string;
+  signSize?: number;
 }
 
-const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens }) => {
+const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, direction = 'col', className, signSize = 48 }) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [normalizedTokens, setNormalizedTokens] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,17 +85,17 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens }) =>
 
   if (normalizedTokens.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full" style={{ background: 'var(--bg-secondary)' }}>
-            <svg className="w-8 h-8 text-secondary-400 dark:text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex flex-col items-center justify-center h-full w-full py-6 sm:py-0">
+        <div className="flex flex-col items-center justify-center w-full">
+          <div className="inline-flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 mb-1 sm:mb-4 rounded-full mx-auto" style={{ background: 'var(--bg-secondary)' }}>
+            <svg className="w-5 h-5 sm:w-8 sm:h-8 text-secondary-400 dark:text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <p className="text-sm text-theme-secondary font-medium mb-1">
+          <p className="text-xs sm:text-sm text-theme-secondary font-medium mb-0.5 sm:mb-1 text-center mx-auto">
             No Signs to Display
           </p>
-          <p className="text-xs text-theme-muted">
+          <p className="text-[9px] sm:text-xs text-theme-muted text-center mx-auto">
             Enter text and translate to see SignWriting
           </p>
         </div>
@@ -101,14 +104,14 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens }) =>
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className={`h-full flex flex-${direction} ${className || ''}`}>
       {/* Signs Container */}
       <div className="flex-1">
         <div
           id="signwriting-container"
-          className="flex flex-col items-center space-y-4 p-2"
+          className={`flex flex-${direction} items-center ${direction === 'col' ? 'space-y-4' : 'space-x-4'} p-2`}
           style={{
-            fontSize: '24px',
+            fontSize: `${signSize}px`,
             color: 'var(--text-primary)',
           }}
         >
