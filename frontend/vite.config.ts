@@ -6,5 +6,8 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     exclude: ['fsw-sign']
+  },
+  server: {
+    port: 5173
   }
 })

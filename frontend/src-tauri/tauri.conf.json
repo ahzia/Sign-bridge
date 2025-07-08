@@ -1,0 +1,61 @@
+{
+  "$schema": "../../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "SignBridge",
+  "version": "0.1.0",
+  "identifier": "com.yourname.frontend",
+  "mainBinaryName": "SignBridge",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build:frontend",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist",
+    "removeUnusedCommands": false
+  },
+  "app": {
+    "security": {
+      "csp": "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'",
+      "assetProtocol": { "enable": false, "scope": [] },
+      "pattern": { "use": "brownfield" },
+      "capabilities": []
+    },
+    "windows": [
+      {
+        "title": "SignBridge",
+        "width": 1280,
+        "height": 900,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": false
+        
+      }
+    ],
+    "trayIcon": null,
+    "withGlobalTauri": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",         
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "entitlements": "entitlements.plist",
+      "hardenedRuntime": true,
+      "minimumSystemVersion": "10.13"
+    },
+    "linux": {
+      "deb": { "files": {} },
+      "appimage": { "bundleMediaFramework": false, "files": {} },
+      "rpm": { "epoch": 0, "files": {}, "release": "1" }
+    },
+    "windows": {
+      "allowDowngrades": true,
+      "webviewInstallMode": { "silent": true, "type": "downloadBootstrapper" }
+    }
+  },
+  "plugins": {}
+}
