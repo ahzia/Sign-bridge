@@ -1,24 +1,43 @@
-# Dependency directories
+# Node/Vite build output
 node_modules/
 dist/
-build/
 
-# Local env files
-.env
-.env.local
-.env.*.local
+# Tauri build output
+src-tauri/target/
+src-tauri/bundle/
 
-# Log files
+# System/IDE files
+.DS_Store
+.vscode/
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Editor directories and files
-.vscode/
-.idea/
-.DS_Store
-
 # Misc
+.env
+
+# Ignore frontend build artifacts
+build/
+
+# Ignore temporary audio files
+/temp_audio/
+
+# Ignore backend venvs (if present in monorepo)
+venv/
+py311_venv/
+ENV/
+
+# Ignore Python cache (if present in monorepo)
+__pycache__/
+
+# Ignore Tauri sidecar binaries
+src-tauri/*.bin
+
+# Ignore test output
+coverage/
+
+# Ignore other common files
 *.log
 *.lock
-*.tsbuildinfo

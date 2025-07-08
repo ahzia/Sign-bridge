@@ -23,16 +23,17 @@ Redesign the SignBridge user interface for a beautiful, intuitive, and accessibl
 
 ### 2. **New Main UI Design**
 - **Layout:**
-  - **Text box at the left** for user input (typed or from speech).
+  - the main content of the page will be divided into three column:
+  - **Text box at the left** for user input (typed or from speech) about 40% of the total width of the page.
   - **Animation display at the right** of the main area.
-  - **SignWriting bar vertically in the center** (column layout, matching SignWriting's direction).
+  - **SignWriting bar vertically in the center** (column layout, matching SignWriting's direction) this will be in middle of text bar and animation display about 40% of the total width of the page. The sign Writing the will be shown here is the final Sign Writing Result not FSW.
 - **Record Button:**
   - Placed below the text box.
   - Visually distinct icons/colors for recording vs idle.
   - Two options: record mic (already works), record system audio (UI only for now).
 - **Input & Triggers:**
   - Users can type directly; translation triggers after a period (end of sentence).
-  - Recording triggers translation after stop.
+  - Recording triggers translation after stop, similar to now.
   - Small arrow button next to the text box for manual translation.
 - **User Experience:**
   - Beautiful, modern design: clear hierarchy, spacing, color palette, responsive layout, smooth transitions.
