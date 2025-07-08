@@ -118,7 +118,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 rounded-lg bg-secondary-100 hover:bg-secondary-200 transition-colors duration-200 text-theme-secondary hover:text-theme-primary"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 rounded-lg bg-secondary-100 dark:bg-secondary-900 hover:bg-secondary-200 dark:hover:bg-secondary-800 transition-colors duration-200 text-theme-secondary dark:text-secondary-100 hover:text-theme-primary dark:hover:text-white"
             aria-label="Close recording modal"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,11 +132,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
                 {isRecording ? 'Recording...' : 'Ready to Record'}
               </span>
             </div>
-            {isRecording && (
-              <div className="text-xs sm:text-sm font-mono text-theme-secondary">
-                {formatTime(recordingTime)}
-              </div>
-            )}
           </div>
 
           {/* Source Selection */}
