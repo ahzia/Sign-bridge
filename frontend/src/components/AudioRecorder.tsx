@@ -40,7 +40,57 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
 
   const startRecording = async () => {
     if (recordingSource === 'system') {
-      // Not implemented
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        alert('System audio recording is not supported in this environment.');
+        setIsRecording(false);
+        return;
+      }
+      try {
+        const displayStream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
+        const audioTracks = displayStream.getAudioTracks();
+        if (audioTracks.length === 0) {
+          alert('No system audio track available.');
+          setIsRecording(false);
+          return;
+        }
+        const audioStream = new MediaStream(audioTracks);
+        // Check for supported MIME type
+        let mimeType = 'audio/webm';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+            mimeType = 'audio/webm;codecs=opus';
+          } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+            mimeType = 'audio/ogg;codecs=opus';
+          } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+            mimeType = 'audio/wav';
+          } else {
+            mimeType = '';
+          }
+        }
+        mediaRecorderRef.current = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
+        mediaRecorderRef.current.ondataavailable = event => {
+          audioChunksRef.current.push(event.data);
+        };
+        mediaRecorderRef.current.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          onRecordingComplete(audioBlob);
+          audioChunksRef.current = [];
+        };
+        mediaRecorderRef.current.start();
+        setRecordingTime(0);
+        timerRef.current = setInterval(() => {
+          setRecordingTime(prev => prev + 1);
+        }, 1000);
+      } catch (error) {
+        console.error('Error accessing system audio:', error);
+        alert('Failed to capture system audio. Please check permissions.');
+        setIsRecording(false);
+      }
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('Audio recording is not supported in this environment. Please check your Tauri/macOS version and permissions.');
       setIsRecording(false);
       return;
     }
@@ -61,7 +111,21 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
         animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
       };
       updateAudioLevel();
-      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      // Check for supported MIME type
+      let mimeType = 'audio/webm';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+          mimeType = 'audio/ogg;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+          mimeType = 'audio/wav';
+        } else {
+          mimeType = '';
+        }
+      }
+
+      mediaRecorderRef.current = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       mediaRecorderRef.current.ondataavailable = event => {
         audioChunksRef.current.push(event.data);
       };
@@ -84,6 +148,15 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
       }, 1000);
     } catch (error) {
       console.error('Error accessing microphone:', error);
+
+      if (
+        error &&
+        typeof error === 'object' &&
+        'name' in error &&
+        (error as any).name === 'NotAllowedError'
+      ) {
+        alert('Microphone access was denied. Please enable it in your system settings.');
+      }
       setIsRecording(false);
     }
   };
@@ -132,6 +205,11 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
                 {isRecording ? 'Recording...' : 'Ready to Record'}
               </span>
             </div>
+            {isRecording && (
+              <div className="text-sm font-mono text-theme-secondary">
+                {formatTime(recordingTime)}
+              </div>
+            )}
           </div>
 
           {/* Source Selection */}
@@ -147,11 +225,13 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
               Microphone
             </button>
             <button
-              className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm font-medium transition-all duration-150 opacity-60 cursor-not-allowed bg-secondary-100 border-secondary-300 text-secondary-400`}
-              disabled
-              title="System audio recording not yet implemented"
+              className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm font-medium transition-all duration-150
+                ${recordingSource === 'system' ? 'bg-primary-100 border-primary-400 text-primary-700' : 'bg-secondary-100 border-secondary-300 text-secondary-500'}
+                `}
+              onClick={() => setRecordingSource('system')}
+              disabled={isRecording}
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h16a1 1 0 110 2H4a1 1 0 01-1-1z" /></svg>
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M3 10h18M3 16h18" /></svg>
               System Audio
             </button>
           </div>
@@ -205,6 +285,11 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
                   <path d="M12 1a3 3 0 013 3v6a3 3 0 11-6 0V4a3 3 0 013-3zm5 10a5 5 0 01-10 0m10 0v2a7 7 0 01-14 0v-2m14 0h2m-2 0h-2m-6 0H4m2 0h2" />
                 </svg>
               )}
+              <div className={`absolute inset-0 rounded-full ${
+              isRecording 
+                ? 'bg-danger-400 animate-ping opacity-75' 
+                : 'bg-primary-400 opacity-0 group-hover:opacity-50 transition-opacity'
+              }`}></div>
             </button>
           </div>
 

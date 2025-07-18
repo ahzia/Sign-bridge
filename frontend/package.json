@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "tauri:dev": "tauri dev",
+    "build": "tauri build",
+    "build:frontend": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@sutton-signwriting/sgnw-components": "^1.1.0",
+    "@sutton-signwriting/font-ttf": "^1.1.0",
     "@types/axios": "^0.9.36",
     "axios": "^1.10.0",
     "mp4-muxer": "^5.2.2",
