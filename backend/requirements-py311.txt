@@ -1,7 +1,0 @@
-fastapi
-uvicorn[standard]
-python-multipart
-torch==2.0.1
-signwriting-translation @ git+https://github.com/sign-language-processing/signwriting-translation.git
-requests
-python-dotenv

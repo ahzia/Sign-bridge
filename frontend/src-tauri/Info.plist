@@ -1,0 +1,6 @@
+<plist version="1.0">
+  <dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app needs access to your microphone.</string>
+  </dict>
+</plist>
