@@ -3,13 +3,14 @@ import os
 import tempfile
 import logging
 import whisper  # Use OpenAI Whisper
+from config import config
 
 router = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "..")) 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=getattr(logging, config.LOG_LEVEL))
 
 @router.post("/transcribe")
 async def transcribe(audio: UploadFile = File(...)):
@@ -24,8 +25,8 @@ async def transcribe(audio: UploadFile = File(...)):
             input_filepath = input_file.name
         logging.info(f"Uploaded audio saved to temporary file: {input_filepath}")
 
-        # Load Whisper model (you can change 'base' to 'small', 'medium', etc.)
-        model = whisper.load_model("base")
+        # Load Whisper model using configuration
+        model = whisper.load_model(config.WHISPER_MODEL)
         result = model.transcribe(input_filepath)
         transcription = result["text"].strip()
 

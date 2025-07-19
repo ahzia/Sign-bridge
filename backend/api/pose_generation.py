@@ -1,10 +1,9 @@
 import requests
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from config import config
 
 router = APIRouter()
-
-POSE_API_URL = "https://us-central1-sign-mt.cloudfunctions.net/spoken_text_to_signed_pose"
 
 class PoseRequest(BaseModel):
     text: str
@@ -25,7 +24,7 @@ async def generate_pose(request: PoseRequest):
         }
         
         # Make the API call - it returns binary pose data directly
-        response = requests.get(POSE_API_URL, params=params)
+        response = requests.get(config.POSE_API_URL, params=params)
         response.raise_for_status()
         
         # The API returns binary pose data directly

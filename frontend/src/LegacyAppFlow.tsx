@@ -6,6 +6,7 @@ import SignWritingDisplay from './components/SignWritingDisplay';
 import SignWritingService from './services/SignWritingService';
 import PoseViewer from './components/PoseViewer';
 import './index.css';
+import { API_ENDPOINTS } from './config';
 
 // --- Reuse split components from App.tsx ---
 const TranscriptionPanel = ({ transcription }: { transcription: string }) => (
@@ -82,6 +83,7 @@ function LegacyAppFlow() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [poseFile, setPoseFile] = useState<Blob | null>(null);
   const [isGeneratingPose, setIsGeneratingPose] = useState(false);
+  const [recordingSource, setRecordingSource] = useState<'mic' | 'system'>('mic');
 
   useEffect(() => {
     const loadInitialAssets = async () => {
@@ -109,7 +111,7 @@ function LegacyAppFlow() {
     try {
       // 1. Transcribe audio
       const transcribeResponse = await axios.post<{ text: string }>(
-        'http://127.0.0.1:8000/transcribe',
+        API_ENDPOINTS.TRANSCRIBE,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -120,7 +122,7 @@ function LegacyAppFlow() {
       // 2. Optionally simplify text
       if (simplifyText && originalText) {
         const simplifyResponse = await axios.post<{ simplified_text: string }>(
-          'http://127.0.0.1:8000/simplify_text',
+          API_ENDPOINTS.SIMPLIFY_TEXT,
           { text: originalText }
         );
         textToTranslate = simplifyResponse.data.simplified_text || originalText;
@@ -130,7 +132,7 @@ function LegacyAppFlow() {
       // 3. Translate to SignWriting
       if (textToTranslate) {
         const translateResponse = await axios.post<{ signwriting: string }>(
-          'http://127.0.0.1:8000/translate_signwriting',
+          API_ENDPOINTS.TRANSLATE_SIGNWRITING,
           { text: textToTranslate }
         );
         const rawFsw = translateResponse.data.signwriting || '';
@@ -141,7 +143,7 @@ function LegacyAppFlow() {
         setIsGeneratingPose(true);
         try {
           const poseResponse = await axios.post<{ pose_data: string; data_format: string }>(
-            'http://127.0.0.1:8000/generate_pose',
+            API_ENDPOINTS.GENERATE_POSE,
             {
               text: textToTranslate,
               spoken_language: 'en',
@@ -185,7 +187,12 @@ function LegacyAppFlow() {
   return (
     <div className="min-h-screen bg-theme-page text-theme-primary p-4">
       <h1 className="text-3xl font-bold mb-4">SignBridge: Voice-to-Sign Translator (Advanced View)</h1>
-      <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+      <AudioRecorder 
+        onRecordingComplete={handleRecordingComplete}
+        recordingSource={recordingSource}
+        setRecordingSource={setRecordingSource}
+        onClose={() => {}}
+      />
       <AudioPlayback audioUrl={audioUrl} />
       <ControlsPanel simplifyText={simplifyText} setSimplifyText={setSimplifyText} />
       <TranscriptionPanel transcription={transcription} />

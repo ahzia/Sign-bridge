@@ -6,9 +6,16 @@ Test script for pose generation API
 import requests
 import json
 import base64
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def test_pose_generation():
     """Test the pose generation API endpoint"""
+    
+    backend_url = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
     
     # Test data
     test_data = {
@@ -20,7 +27,7 @@ def test_pose_generation():
     try:
         # Make the API call
         response = requests.post(
-            "http://127.0.0.1:8000/generate_pose",
+            f"{backend_url}/generate_pose",
             headers={"Content-Type": "application/json"},
             json=test_data
         )

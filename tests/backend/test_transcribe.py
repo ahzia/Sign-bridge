@@ -1,7 +1,13 @@
 import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def test_transcribe():
-    url = "http://127.0.0.1:8000/transcribe"
+    backend_url = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+    url = f"{backend_url}/transcribe"
     audio_path = "tests/test_file_converted.wav"  # Updated to converted test audio path
 
     with open(audio_path, "rb") as f:

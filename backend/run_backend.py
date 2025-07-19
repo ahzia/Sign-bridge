@@ -1,6 +1,7 @@
 import importlib.util
 import os
 import uvicorn
+from config import config
 
 # Find the path to main.py relative to this script
 main_path = os.path.join(os.path.dirname(__file__), "main.py")
@@ -10,4 +11,4 @@ spec.loader.exec_module(main)
 app = main.app
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run("main:app", host=config.HOST, port=config.PORT, reload=config.DEBUG)
