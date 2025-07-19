@@ -5,6 +5,7 @@ import SignWritingDisplay from './components/SignWritingDisplay';
 import PoseViewer from './components/PoseViewer';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useTheme } from './contexts/ThemeContext';
+import { API_ENDPOINTS } from './config';
 import './index.css';
 
 // Simple Modal for text choice
@@ -88,7 +89,7 @@ function App() {
       let textToTranslate = text;
       if (simplifyText) {
         const simplifyResponse = await axios.post<{ simplified_text: string }>(
-          'http://127.0.0.1:8000/simplify_text',
+          API_ENDPOINTS.SIMPLIFY_TEXT,
           { text }
         );
         textToTranslate = simplifyResponse.data.simplified_text || text;
@@ -96,7 +97,7 @@ function App() {
       
       // 1. Translate to SignWriting
       const translateResponse = await axios.post<{ signwriting: string }>(
-        'http://127.0.0.1:8000/translate_signwriting',
+        API_ENDPOINTS.TRANSLATE_SIGNWRITING,
         { text: textToTranslate }
       );
       const rawFsw = translateResponse.data.signwriting || '';
@@ -108,7 +109,7 @@ function App() {
       if (fswTokens.length > 0) {
         try {
           const poseResponse = await axios.post<{ pose_data: string; data_format: string }>(
-            'http://127.0.0.1:8000/generate_pose',
+            API_ENDPOINTS.GENERATE_POSE,
             {
               text: textToTranslate,
               spoken_language: 'en',
@@ -156,7 +157,7 @@ function App() {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
       const transcribeResponse = await axios.post<{ text: string }>(
-        'http://127.0.0.1:8000/transcribe',
+        API_ENDPOINTS.TRANSCRIBE,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -180,7 +181,7 @@ function App() {
     setIsTranslating(true);
     try {
       const response = await axios.post<{ simplified_text: string }>(
-        'http://127.0.0.1:8000/simplify_text',
+        API_ENDPOINTS.SIMPLIFY_TEXT,
         { text: inputText }
       );
       setSimplifiedText(response.data.simplified_text || inputText);

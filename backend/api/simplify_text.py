@@ -1,25 +1,19 @@
 import requests
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from config import config
 
 router = APIRouter()
-
-GROQ_API_URL = os.getenv("GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
 class TextRequest(BaseModel):
     text: str
 
 @router.post("/simplify_text")
 async def simplify_text(request: TextRequest):
-    if not GROQ_API_KEY:
+    if not config.GROQ_API_KEY:
         raise HTTPException(status_code=500, detail="Groq API key not configured.")
     headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Authorization": f"Bearer {config.GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
@@ -29,7 +23,7 @@ async def simplify_text(request: TextRequest):
         ]
     }
     try:
-        response = requests.post(GROQ_API_URL, json=payload, headers=headers)
+        response = requests.post(config.GROQ_API_URL, json=payload, headers=headers)
         response.raise_for_status()
         simplified_text = response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
         return {"simplified_text": simplified_text}
