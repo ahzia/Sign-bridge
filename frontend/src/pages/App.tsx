@@ -6,6 +6,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
 import ApiService, { type TranscribeResponse, type SimplifyTextResponse, type TranslateSignWritingResponse, type GeneratePoseResponse } from '../services/ApiService';
 import '../index.css';
+import Header from '../components/Header';
+import InputSection from '../components/InputSection';
 
 // Simple Modal for text choice
 const SimplifyChoiceModal = ({ original, simplified, onSelect, onClose }: { original: string, simplified: string, onSelect: (choice: 'original' | 'simplified') => void, onClose: () => void }) => (
@@ -182,173 +184,28 @@ function App() {
 
   return (
     <div className="min-h-screen transition-all duration-300">
-      {/* Enhanced Header */}
-      <header className="glass border-b border-theme-primary sticky top-0 z-30 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex flex-row sm:flex-row items-center sm:items-center justify-between sm:justify-between gap-y-0">
-            {/* Enhanced Branding */}
-            <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1">
-              <div className="w-7 h-7 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                <svg className="w-4 h-4 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-base sm:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent truncate max-w-[110px] sm:max-w-none">
-                  SignBridge
-                </h1>
-                <p className="text-[10px] sm:text-sm text-theme-secondary font-medium truncate max-w-[110px] sm:max-w-none">AI-Powered Voice-to-Sign Translator</p>
-              </div>
-            </div>
-            
-            {/* Enhanced Header Controls */}
-            <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0">
-              {/* Simplify Text Toggle - Enhanced */}
-              <label className="flex sm:flex items-center gap-1 sm:gap-3 cursor-pointer group">
-                <div className="relative flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={simplifyText}
-                    onChange={(e) => setSimplifyText(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div className={`w-7 h-4 sm:w-11 sm:h-6 rounded-full transition-colors duration-200 flex items-center ${
-                    simplifyText ? 'bg-primary-500' : 'bg-secondary-300'
-                  }`}>
-                    <div className={`w-3 h-3 sm:w-5 sm:h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-                      simplifyText ? 'translate-x-3 sm:translate-x-5' : 'translate-x-0'
-                    }`}></div>
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs sm:text-sm font-semibold text-theme-secondary group-hover:text-primary-600 transition-colors whitespace-nowrap">
-                    Simplify Text
-                  </span>
-                  <span className="hidden sm:inline text-xs text-theme-muted">Optimize for translation</span>
-                </div>
-              </label>
-              
-              {/* Enhanced Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="relative p-3 rounded-xl bg-theme-secondary hover:bg-theme-tertiary transition-all duration-200 group shadow-sm hover:shadow-md"
-                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-              >
-                {theme === 'light' ? (
-                  <svg className="w-5 h-5 text-theme-secondary group-hover:text-purple-600 transition-colors" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-theme-secondary group-hover:text-warning-400 transition-colors" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-                  </svg>
-                )}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-200"></div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Header
+        theme={theme}
+        toggleTheme={toggleTheme}
+        simplifyText={simplifyText}
+        setSimplifyText={setSimplifyText}
+      />
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8" style={{height: 'calc(100vh - 160px)'}}>
           
           {/* Input Section - Enhanced */}
-          <div className="xl:col-span-5 h-full">
-            <div className="card h-full flex flex-col bg-white dark:bg-theme-secondary shadow-sm sm:shadow-xl hover:shadow-md sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
-              <div className="pb-3 sm:pb-6 border-b border-theme-primary">
-                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary-100 rounded-xl sm:rounded-lg flex items-center justify-center">
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 className="text-base sm:text-xl font-bold text-theme-primary">
-                      Input Text
-                    </h2>
-                    <p className="text-xs sm:text-sm text-theme-secondary">
-                      Type or speak your message to translate
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 flex flex-col pt-2 sm:pt-6">
-                {isTranscribing ? (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-8 h-8 sm:w-16 sm:h-16 loading-spinner mx-auto mb-2 sm:mb-4"></div>
-                      <p className="text-xs sm:text-sm font-medium text-theme-secondary mb-1 sm:mb-2">Processing voice recording...</p>
-                      <p className="text-[10px] sm:text-xs text-theme-muted">Converting speech to text</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative flex-1">
-                    <textarea
-                      className="w-full h-full resize-none bg-theme-input border border-theme-input sm:border-2 rounded-xl sm:rounded-xl p-2 sm:p-4 text-theme-primary placeholder-theme-placeholder focus:border-primary-500 focus:ring-2 sm:focus:ring-4 focus:ring-primary-500/10 transition-all duration-200 text-sm sm:text-base leading-relaxed min-h-[120px] sm:min-h-[180px]"
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      placeholder="Type your message here or use voice recording to get started..."
-                      aria-label="Input text for translation"
-                    />
-                    <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-theme-muted">
-                      <span>{inputText.length} characters</span>
-                      <div className="w-1 h-1 bg-secondary-300 rounded-full"></div>
-                      <span>Press Enter to translate</span>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Enhanced Action Buttons */}
-                <div className="flex flex-row gap-2 sm:gap-4 mt-3 sm:mt-6">
-                  <button
-                    onClick={handleRecordClick}
-                    className="group relative flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold p-2 sm:py-4 sm:px-6 rounded-xl sm:rounded-xl shadow-sm sm:shadow-lg hover:shadow-md sm:hover:shadow-xl flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base sm:text-base min-w-0"
-                    aria-pressed={isRecording}
-                    aria-label="Start recording"
-                    disabled={isRecording || isTranscribing}
-                  >
-                    <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                    <div className="relative flex items-center justify-center">
-                      <div className="w-7 h-7 sm:w-5 sm:h-5 bg-white/20 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="hidden sm:inline ml-2">{isRecording ? 'Recording...' : 'Record Voice'}</span>
-                    </div>
-                  </button>
-                  
-                  <button
-                    onClick={simplifyText ? handleSimplifyAndTranslate : () => triggerTranslation(inputText)}
-                    disabled={isTranslating || isTranscribing || inputText.trim() === ''}
-                    className="group relative flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold p-2 sm:py-4 sm:px-6 rounded-xl sm:rounded-xl shadow-sm sm:shadow-lg hover:shadow-md sm:hover:shadow-xl flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base sm:text-base min-w-0"
-                    aria-label={simplifyText ? 'Simplify and translate text' : 'Translate text'}
-                  >
-                    <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                    <div className="relative flex items-center justify-center">
-                      {isTranslating ? (
-                        <>
-                          <div className="w-7 h-7 sm:w-5 sm:h-5 loading-spinner" style={{borderTopColor: 'white', borderRightColor: 'white', borderWidth: '2px'}}></div>
-                          <span className="hidden sm:inline ml-2">{simplifyText ? 'Simplifying...' : 'Translating...'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="w-7 h-7 sm:w-5 sm:h-5 bg-white/20 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                          </div>
-                          <span className="hidden sm:inline ml-2">{simplifyText ? 'Simplify & Translate' : 'Translate'}</span>
-                        </>
-                      )}
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <InputSection
+            inputText={inputText}
+            setInputText={setInputText}
+            isTranscribing={isTranscribing}
+            isRecording={isRecording}
+            handleRecordClick={handleRecordClick}
+            handleSimplifyAndTranslate={handleSimplifyAndTranslate}
+            triggerTranslation={triggerTranslation}
+            simplifyText={simplifyText}
+            isTranslating={isTranslating}
+          />
 
           {/* SignWriting Display - Enhanced */}
           <div className="xl:col-span-3 h-full">
