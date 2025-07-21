@@ -1,178 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
+import { useAudioRecorder, type RecordingSource } from '../hooks/useAudioRecorder';
 
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
-  recordingSource: 'mic' | 'system';
-  setRecordingSource: (source: 'mic' | 'system') => void;
+  recordingSource: RecordingSource;
+  setRecordingSource: (source: RecordingSource) => void;
   onClose: () => void;
 }
 
 const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, recordingSource, setRecordingSource, onClose }) => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [audioLevel, setAudioLevel] = useState(0);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (isRecording) {
-      startRecording();
-    } else {
-      stopRecording();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRecording]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, []);
-
-  const startRecording = async () => {
-    if (recordingSource === 'system') {
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-        alert('System audio recording is not supported in this environment.');
-        setIsRecording(false);
-        return;
-      }
-      try {
-        const displayStream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
-        const audioTracks = displayStream.getAudioTracks();
-        if (audioTracks.length === 0) {
-          alert('No system audio track available.');
-          setIsRecording(false);
-          return;
-        }
-        const audioStream = new MediaStream(audioTracks);
-        // Check for supported MIME type
-        let mimeType = 'audio/webm';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-            mimeType = 'audio/webm;codecs=opus';
-          } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
-            mimeType = 'audio/ogg;codecs=opus';
-          } else if (MediaRecorder.isTypeSupported('audio/wav')) {
-            mimeType = 'audio/wav';
-          } else {
-            mimeType = '';
-          }
-        }
-        mediaRecorderRef.current = new MediaRecorder(audioStream, mimeType ? { mimeType } : undefined);
-        mediaRecorderRef.current.ondataavailable = event => {
-          audioChunksRef.current.push(event.data);
-        };
-        mediaRecorderRef.current.onstop = () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          onRecordingComplete(audioBlob);
-          audioChunksRef.current = [];
-        };
-        mediaRecorderRef.current.start();
-        setRecordingTime(0);
-        timerRef.current = setInterval(() => {
-          setRecordingTime(prev => prev + 1);
-        }, 1000);
-      } catch (error) {
-        console.error('Error accessing system audio:', error);
-        alert('Failed to capture system audio. Please check permissions.');
-        setIsRecording(false);
-      }
-      return;
-    }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('Audio recording is not supported in this environment. Please check your Tauri/macOS version and permissions.');
-      setIsRecording(false);
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioContextRef.current = new AudioContext();
-      const source = audioContextRef.current.createMediaStreamSource(stream);
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      analyserRef.current.fftSize = 256;
-      source.connect(analyserRef.current);
-      const updateAudioLevel = () => {
-        if (analyserRef.current) {
-          const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-          analyserRef.current.getByteFrequencyData(dataArray);
-          const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-          setAudioLevel(average);
-        }
-        animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
-      };
-      updateAudioLevel();
-      // Check for supported MIME type
-      let mimeType = 'audio/webm';
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-          mimeType = 'audio/webm;codecs=opus';
-        } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
-          mimeType = 'audio/ogg;codecs=opus';
-        } else if (MediaRecorder.isTypeSupported('audio/wav')) {
-          mimeType = 'audio/wav';
-        } else {
-          mimeType = '';
-        }
-      }
-
-      mediaRecorderRef.current = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-      mediaRecorderRef.current.ondataavailable = event => {
-        audioChunksRef.current.push(event.data);
-      };
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        onRecordingComplete(audioBlob);
-        audioChunksRef.current = [];
-        if (audioContextRef.current) {
-          audioContextRef.current.close();
-          audioContextRef.current = null;
-        }
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-      };
-      mediaRecorderRef.current.start();
-      setRecordingTime(0);
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-
-      if (
-        error &&
-        typeof error === 'object' &&
-        'name' in error &&
-        (error as any).name === 'NotAllowedError'
-      ) {
-        alert('Microphone access was denied. Please enable it in your system settings.');
-      }
-      setIsRecording(false);
-    }
-  };
-
-  const stopRecording = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    mediaRecorderRef.current?.stop();
-    setRecordingTime(0);
-    setAudioLevel(0);
-  };
+  const {
+    isRecording,
+    setIsRecording,
+    recordingTime,
+    audioLevel,
+    startRecording,
+    stopRecording,
+  } = useAudioRecorder({ recordingSource, onRecordingComplete });
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -184,7 +28,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({ onRecordingComplete, reco
     <>
       {/* Blur overlay for entire page */}
       <div className="fixed inset-0 bg-black/20 backdrop-blur-md z-40 animate-fade-in"></div>
-      
       {/* Responsive Modal */}
       <div className="fixed z-50 w-full sm:w-auto left-1/2 top-1/2 sm:left-[25%] sm:top-1/2 transform -translate-x-1/2 -translate-y-1/2 sm:-translate-y-1/2 sm:bottom-auto">
         <div className="bg-theme-modal rounded-t-2xl sm:rounded-2xl shadow-2xl border border-theme-modal p-3 sm:p-6 w-full sm:min-w-[340px] max-w-md mx-auto relative">
