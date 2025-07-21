@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import AudioRecorder from './components/AudioRecorder';
-import SignWritingDisplay from './components/SignWritingDisplay';
-import PoseViewer from './components/PoseViewer';
-import LoadingSpinner from './components/LoadingSpinner';
-import { useTheme } from './contexts/ThemeContext';
-import { API_ENDPOINTS } from './config';
-import './index.css';
+import AudioRecorder from '../components/AudioRecorder';
+import SignWritingDisplay from '../components/SignWritingDisplay';
+import PoseViewer from '../components/PoseViewer';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { useTheme } from '../contexts/ThemeContext';
+import ApiService, { type TranscribeResponse, type SimplifyTextResponse, type TranslateSignWritingResponse, type GeneratePoseResponse } from '../services/ApiService';
+import '../index.css';
 
 // Simple Modal for text choice
 const SimplifyChoiceModal = ({ original, simplified, onSelect, onClose }: { original: string, simplified: string, onSelect: (choice: 'original' | 'simplified') => void, onClose: () => void }) => (
@@ -88,19 +87,13 @@ function App() {
     try {
       let textToTranslate = text;
       if (simplifyText) {
-        const simplifyResponse = await axios.post<{ simplified_text: string }>(
-          API_ENDPOINTS.SIMPLIFY_TEXT,
-          { text }
-        );
-        textToTranslate = simplifyResponse.data.simplified_text || text;
+        const simplifyResponse = await ApiService.simplifyText(text);
+        textToTranslate = simplifyResponse.simplified_text || text;
       }
       
       // 1. Translate to SignWriting
-      const translateResponse = await axios.post<{ signwriting: string }>(
-        API_ENDPOINTS.TRANSLATE_SIGNWRITING,
-        { text: textToTranslate }
-      );
-      const rawFsw = translateResponse.data.signwriting || '';
+      const translateResponse = await ApiService.translateSignWriting(textToTranslate);
+      const rawFsw = translateResponse.signwriting || '';
       const fswTokens = rawFsw.trim().split(/\s+/).filter(token => token.length > 0);
       setSignWriting(fswTokens);
       setIsGeneratingSigns(false);
@@ -108,16 +101,8 @@ function App() {
       // 2. Generate pose file for animation
       if (fswTokens.length > 0) {
         try {
-          const poseResponse = await axios.post<{ pose_data: string; data_format: string }>(
-            API_ENDPOINTS.GENERATE_POSE,
-            {
-              text: textToTranslate,
-              spoken_language: 'en',
-              signed_language: 'ase',
-            },
-            { responseType: 'json' }
-          );
-          const { pose_data, data_format } = poseResponse.data;
+          const poseResponse = await ApiService.generatePose(textToTranslate, 'en', 'ase');
+          const { pose_data, data_format } = poseResponse;
           if (data_format === 'binary_base64' && pose_data) {
             const binary = atob(pose_data);
             const bytes = new Uint8Array(binary.length);
@@ -154,14 +139,8 @@ function App() {
     setPoseFile(null);
     setTranscription('');
     try {
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
-      const transcribeResponse = await axios.post<{ text: string }>(
-        API_ENDPOINTS.TRANSCRIBE,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
-      const originalText = transcribeResponse.data.text || '';
+      const transcribeResponse = await ApiService.transcribe(audioBlob);
+      const originalText = transcribeResponse.text || '';
       setInputText(originalText);
       setIsTranscribing(false);
       triggerTranslation(originalText);
@@ -180,11 +159,8 @@ function App() {
     setError(null);
     setIsTranslating(true);
     try {
-      const response = await axios.post<{ simplified_text: string }>(
-        API_ENDPOINTS.SIMPLIFY_TEXT,
-        { text: inputText }
-      );
-      setSimplifiedText(response.data.simplified_text || inputText);
+      const response = await ApiService.simplifyText(inputText);
+      setSimplifiedText(response.simplified_text || inputText);
       setPendingOriginalText(inputText);
       setShowSimplifyModal(true);
     } catch {
