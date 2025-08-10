@@ -9,7 +9,9 @@
     "build": "tauri build",
     "build:frontend": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "../scripts/start_app.sh",
+    "build:production": "../scripts/build_production.sh"
   },
   "dependencies": {
     "@sutton-signwriting/sgnw-components": "^1.1.0",
