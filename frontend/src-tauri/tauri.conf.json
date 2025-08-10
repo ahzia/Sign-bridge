@@ -32,7 +32,7 @@
     "trayIcon": null,
     "withGlobalTauri": true
   },
-  "bundle": {
+    "bundle": {
     "active": true,
     "targets": "all",         
     "icon": [
@@ -55,7 +55,10 @@
     "windows": {
       "allowDowngrades": true,
       "webviewInstallMode": { "silent": true, "type": "downloadBootstrapper" }
-    }
+    },
+    "resources": [
+      "resources/backend"
+    ]
   },
   "plugins": {}
 }
