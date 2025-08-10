@@ -132,9 +132,18 @@ cython_debug/
 # VSCode settings
 .vscode/
 
-# Tauri sidecar binaries
+# Tauri sidecar binaries and build artifacts
 src-tauri/target/
 src-tauri/bundle/
+src-tauri/resources/
+frontend/src-tauri/resources/
+frontend/src-tauri/target/
+frontend/src-tauri/bundle/
+
+# Backend build artifacts
+backend/dist/
+backend/build/
+backend/*.spec
 
 # Temporary audio files
 temp_audio/
