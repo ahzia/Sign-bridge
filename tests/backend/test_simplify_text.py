@@ -1,7 +1,13 @@
 import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def test_simplify_text():
-    url = "http://127.0.0.1:8000/simplify_text"
+    backend_url = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+    url = f"{backend_url}/simplify_text"
     text = "This is a complex sentence that needs to be simplified for sign translation."
 
     response = requests.post(url, json={"text": text})

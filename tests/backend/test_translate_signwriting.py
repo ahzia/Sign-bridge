@@ -1,7 +1,13 @@
 import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def test_translate_signwriting():
-    url = "http://127.0.0.1:8000/translate_signwriting"
+    backend_url = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+    url = f"{backend_url}/translate_signwriting"
     text = "My name is John."
 
     response = requests.post(url, json={"text": text})
