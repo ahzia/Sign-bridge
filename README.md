@@ -38,7 +38,19 @@ git clone https://github.com/your-org/SignBridge.git
 cd SignBridge
 ```
 
-### 2. **Backend Setup**
+### 2. **Quick Start (Recommended)**
+The easiest way to run SignBridge is using the integrated startup script:
+
+```sh
+./scripts/start_app.sh
+```
+
+This will automatically start both the backend and frontend, and launch the Tauri desktop app.
+
+### 3. **Manual Setup (Development)**
+If you prefer to run components separately:
+
+**Backend Setup:**
 - See [backend/README.md](./backend/README.md) for full details.
 - Quick start:
   ```sh
@@ -48,7 +60,7 @@ cd SignBridge
   uvicorn main:app --host 127.0.0.1 --port 8000
   ```
 
-### 3. **Frontend Setup**
+**Frontend Setup:**
 - See [frontend/README.md](./frontend/README.md) for full details.
 - Quick start:
   ```sh
