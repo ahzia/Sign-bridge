@@ -9,117 +9,111 @@ interface SignWritingDisplayProps {
 }
 
 const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, direction = 'col', className, signSize = 48 }) => {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [normalizedTokens, setNormalizedTokens] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadFonts = async () => {
       try {
-        setLoading(true);
         await SignWritingService.loadFonts();
         setFontsLoaded(true);
       } catch (error) {
-        console.error('Failed to load SignWriting fonts:', error);
-      } finally {
-        setLoading(false);
+        console.error('Failed to load fonts:', error);
+        setFontsLoaded(false);
       }
     };
+
     loadFonts();
   }, []);
 
   useEffect(() => {
     const normalizeTokens = async () => {
-      if (!fontsLoaded) return;
-      
-      const results = [];
-      for (const token of fswTokens) {
-        const normalized = await SignWritingService.normalizeFSW(token);
-        if (normalized) {
-          results.push(normalized);
-        } else {
-          results.push(token);
-        }
+      try {
+        const results = await Promise.all(
+          fswTokens.map(token => SignWritingService.normalizeFSW(token))
+        );
+        setNormalizedTokens(results.filter(Boolean) as string[]);
+      } catch (error) {
+        console.error('Failed to normalize tokens:', error);
+        setNormalizedTokens([]);
       }
-      setNormalizedTokens(results);
     };
-    normalizeTokens();
-  }, [fswTokens, fontsLoaded]);
 
-  // Save as Image handler
+    if (fswTokens.length > 0) {
+      normalizeTokens();
+    } else {
+      setNormalizedTokens([]);
+    }
+  }, [fswTokens]);
+
   const handleSaveAsImage = async () => {
     if (!containerRef.current) return;
-    // Get all <fsw-sign> elements
-    const fswSigns = Array.from(containerRef.current.querySelectorAll('fsw-sign'));
-    if (fswSigns.length === 0) return;
-    // Wait a tick to ensure all SVGs are rendered
-    await new Promise(r => setTimeout(r, 50));
-    // Extract SVGs from shadow DOM of each <fsw-sign>
-    let maxWidth = 0;
-    let totalHeight = 0;
-    const svgData: {svg: SVGSVGElement, width: number, height: number}[] = [];
-    for (const el of fswSigns) {
-      // @ts-ignore
-      const shadow = el.shadowRoot;
-      if (!shadow) continue;
-      const svg = shadow.querySelector('svg');
-      if (!svg) continue;
-      const vb = svg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,100,100];
-      const width = vb[2];
-      const height = vb[3];
-      maxWidth = Math.max(maxWidth, width);
-      totalHeight += height;
-      svgData.push({svg, width, height});
-    }
-    // Compose a single SVG string
-    let y = 0;
-    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${maxWidth}" height="${totalHeight}" viewBox="0 0 ${maxWidth} ${totalHeight}">
-` +
-      svgData.map(({svg, width, height}) => {
-        const svgStr = svg.outerHTML
-          .replace('<svg ', `<g transform=\"translate(0,${y})\" `)
-          .replace('</svg>', '</g>');
-        y += height;
-        return svgStr;
-      }).join('\n') +
-      '\n</svg>';
-    // Download as SVG file
-    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'signwriting.svg';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-full" style={{ background: 'var(--bg-primary)' }}>
-            <div className="w-6 h-6 loading-spinner" style={{borderTopColor: 'var(--primary-500)', borderRightColor: 'var(--primary-500)', borderWidth: '2px'}}></div>
-          </div>
-          <p className="text-sm text-theme-secondary font-medium">
-            Loading SignWriting fonts...
-          </p>
-        </div>
-      </div>
-    );
-  }
+    try {
+      // Get all <fsw-sign> elements
+      const fswSigns = Array.from(containerRef.current.querySelectorAll('fsw-sign'));
+      if (fswSigns.length === 0) return;
+      
+      // Wait a tick to ensure all SVGs are rendered
+      await new Promise(r => setTimeout(r, 50));
+      
+      // Extract SVGs from shadow DOM of each <fsw-sign>
+      let maxWidth = 0;
+      let totalHeight = 0;
+      const svgData: {svg: SVGSVGElement, width: number, height: number}[] = [];
+      
+      for (const el of fswSigns) {
+        // @ts-ignore
+        const shadow = el.shadowRoot;
+        if (!shadow) continue;
+        const svg = shadow.querySelector('svg');
+        if (!svg) continue;
+        const vb = svg.getAttribute('viewBox')?.split(' ').map(Number) || [0,0,100,100];
+        const width = vb[2];
+        const height = vb[3];
+        maxWidth = Math.max(maxWidth, width);
+        totalHeight += height;
+        svgData.push({svg, width, height});
+      }
+      
+      // Compose a single SVG string
+      let y = 0;
+      const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${maxWidth}" height="${totalHeight}" viewBox="0 0 ${maxWidth} ${totalHeight}">
+` +
+        svgData.map(({svg, width, height}) => {
+          const svgStr = svg.outerHTML
+            .replace('<svg ', `<g transform=\"translate(0,${y})\" `)
+            .replace('</svg>', '</g>');
+          y += height;
+          return svgStr;
+        }).join('\n') +
+        '\n</svg>';
+      
+      // Download as SVG file
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'signwriting.svg';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error('Failed to save image:', error);
+    }
+  };
 
   if (!fontsLoaded) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-full" style={{ background: 'var(--bg-danger)' }}>
-            <svg className="w-6 h-6 text-danger-600 dark:text-danger-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+      <div className="flex flex-col items-center justify-center h-full w-full py-6 sm:py-0">
+        <div className="flex flex-col items-center justify-center w-full">
+          <div className="inline-flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 mb-1 sm:mb-4 rounded-full mx-auto" style={{ background: 'var(--bg-secondary)' }}>
+            <svg className="w-5 h-5 sm:w-8 sm:h-8 text-secondary-400 dark:text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
           <p className="text-sm text-danger-600 font-medium mb-2">
@@ -186,10 +180,23 @@ const SignWritingDisplay: React.FC<SignWritingDisplayProps> = ({ fswTokens, dire
                 animation: `fadeIn 0.3s ease-out ${index * 0.1}s both`
               }}
             >
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: `<fsw-sign sign="${token}" style="direction: ltr; display: block; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-touch-callout: none; color: var(--text-primary); fill: var(--text-primary); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); transition: transform 0.2s ease-in-out;" class="hover:scale-105 cursor-pointer"></fsw-sign>`
+              {/* Use proper JSX instead of dangerouslySetInnerHTML */}
+              <fsw-sign
+                sign={token}
+                style={{
+                  direction: 'ltr',
+                  display: 'block',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  MozUserSelect: 'none',
+                  msUserSelect: 'none',
+                  WebkitTouchCallout: 'none',
+                  color: 'var(--text-primary)',
+                  fill: 'var(--text-primary)',
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+                  transition: 'transform 0.2s ease-in-out',
                 }}
+                className="hover:scale-105 cursor-pointer"
               />
               
               {/* Hover tooltip */}

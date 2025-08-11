@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { defineCustomElements } from 'pose-viewer/loader';
 
 interface PoseViewerProps {
   poseFile?: Blob | Uint8Array;
@@ -15,11 +16,10 @@ const PoseViewer: React.FC<PoseViewerProps> = ({ poseFile, poseUrl, onAnimationC
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Dynamically import and define the pose-viewer web component
+    // Define the pose-viewer web component
     const loadPoseViewer = async () => {
       try {
         setLoading(true);
-        const { defineCustomElements } = await import('pose-viewer/loader');
         defineCustomElements();
         setLoading(false);
       } catch (err) {

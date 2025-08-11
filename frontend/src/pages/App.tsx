@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import AudioRecorder from '../components/AudioRecorder';
 import { useTheme } from '../contexts/ThemeContext';
 import ApiService, { type TranscribeResponse, type SimplifyTextResponse, type TranslateSignWritingResponse, type GeneratePoseResponse } from '../services/ApiService';
-import '../index.css';
 import Header from '../components/Header';
 import InputSection from '../components/InputSection';
 import SignWritingSection from '../components/SignWritingSection';
@@ -29,7 +28,7 @@ function App() {
   const [pendingOriginalText, setPendingOriginalText] = useState('');
 
   const { theme, toggleTheme } = useTheme();
-  const translationTimeout = useRef<NodeJS.Timeout | null>(null);
+  const translationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (translationTimeout.current) {

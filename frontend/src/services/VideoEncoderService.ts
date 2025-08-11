@@ -1,5 +1,7 @@
 import type { ArrayBufferTarget as WebmArrayBufferTarget, Muxer as WebmMuxer } from 'webm-muxer';
 import type { ArrayBufferTarget as Mp4ArrayBufferTarget, Muxer as Mp4Muxer } from 'mp4-muxer';
+import { Muxer as WebmMuxerImpl, ArrayBufferTarget as WebmArrayBufferTargetImpl } from 'webm-muxer';
+import { Muxer as Mp4MuxerImpl, ArrayBufferTarget as Mp4ArrayBufferTargetImpl } from 'mp4-muxer';
 
 export function getMediaSourceClass(): typeof MediaSource | null {
   if ('ManagedMediaSource' in window) {
@@ -84,8 +86,6 @@ export class VideoEncoderService {
   }
 
   private async createWebMMuxer(): Promise<void> {
-    const { Muxer, ArrayBufferTarget } = await import('webm-muxer');
-
     // Set the metadata
     this.container = 'webm';
     this.codec = 'vp09.00.10.08';
@@ -93,8 +93,8 @@ export class VideoEncoderService {
     this.height = this.image.height;
 
     // Create the muxer
-    this.muxer = new Muxer({
-      target: new ArrayBufferTarget(),
+    this.muxer = new WebmMuxerImpl({
+      target: new WebmArrayBufferTargetImpl(),
       video: {
         codec: 'V_VP9',
         width: this.width,
@@ -106,8 +106,6 @@ export class VideoEncoderService {
   }
 
   private async createMP4Muxer(): Promise<void> {
-    const { Muxer, ArrayBufferTarget } = await import('mp4-muxer');
-
     // Set the metadata
     this.container = 'mp4';
     this.codec = 'avc1.42001f';
@@ -116,8 +114,8 @@ export class VideoEncoderService {
     this.height = this.image.height + (this.image.height % 2);
 
     // Create the muxer
-    this.muxer = new Muxer({
-      target: new ArrayBufferTarget(),
+    this.muxer = new Mp4MuxerImpl({
+      target: new Mp4ArrayBufferTargetImpl(),
       fastStart: 'in-memory',
       video: {
         codec: 'avc',

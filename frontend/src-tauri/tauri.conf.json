@@ -13,7 +13,7 @@
   },
   "app": {
     "security": {
-      "csp": "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'",
+      "csp": "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' blob: data: filesystem: http: https:",
       "assetProtocol": { "enable": false, "scope": [] },
       "pattern": { "use": "brownfield" },
       "capabilities": []

@@ -1,0 +1,38 @@
+/* SignWriting Fonts - Load before components */
+@font-face {
+  font-family: 'SuttonSignWritingLine';
+  src: url('./fonts/SuttonSignWritingLine.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SuttonSignWritingFill';
+  src: url('./fonts/SuttonSignWritingFill.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SuttonSignWritingOneD';
+  src: url('./fonts/SuttonSignWritingOneD.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* Force fsw-sign web component to use SignWriting fonts */
+fsw-sign {
+  font-family: 'SuttonSignWritingLine', 'SuttonSignWritingFill', 'SuttonSignWritingOneD', sans-serif !important;
+}
+
+/* Target any internal elements of the web component */
+fsw-sign * {
+  font-family: 'SuttonSignWritingLine', 'SuttonSignWritingFill', 'SuttonSignWritingOneD', sans-serif !important;
+}
+
+/* Ensure SVG elements inside fsw-sign use the fonts */
+fsw-sign svg {
+  font-family: 'SuttonSignWritingLine', 'SuttonSignWritingFill', 'SuttonSignWritingOneD', sans-serif !important;
+}
+
+/* Target any text elements that might be created by the web component */
+fsw-sign text {
+  font-family: 'SuttonSignWritingLine', 'SuttonSignWritingFill', 'SuttonSignWritingOneD', sans-serif !important;
+} 
