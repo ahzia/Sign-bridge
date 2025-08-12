@@ -1,19 +1,19 @@
-/* SignWriting Fonts - Load before components */
+/* SignWriting Fonts */
 @font-face {
   font-family: 'SuttonSignWritingLine';
-  src: url('./fonts/SuttonSignWritingLine.ttf') format('truetype');
+  src: url('/fonts/SuttonSignWritingLine.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'SuttonSignWritingFill';
-  src: url('./fonts/SuttonSignWritingFill.ttf') format('truetype');
+  src: url('/fonts/SuttonSignWritingFill.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'SuttonSignWritingOneD';
-  src: url('./fonts/SuttonSignWritingOneD.ttf') format('truetype');
+  src: url('/fonts/SuttonSignWritingOneD.ttf') format('truetype');
   font-display: swap;
 }
 

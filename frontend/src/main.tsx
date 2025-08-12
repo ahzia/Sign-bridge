@@ -1,17 +1,24 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './pages/App.tsx'
-import { ThemeProvider } from './contexts/ThemeContext'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './pages/App.tsx';
+import './index.css';
+import './fonts.css';
+import { ThemeProvider } from './contexts/ThemeContext.tsx';
+import SignWritingService from './services/SignWritingService.ts';
 
-import { defineCustomElements } from '@sutton-signwriting/sgnw-components/loader';
+const initializeApp = async () => {
+  // Load SignWriting fonts
+  await SignWritingService.loadFonts();
+  
+  // Initialize React app
+  const root = ReactDOM.createRoot(document.getElementById('root')!);
+  root.render(
+    <React.StrictMode>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </React.StrictMode>
+  );
+};
 
-defineCustomElements(window);
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
-  </StrictMode>,
-)
+initializeApp();

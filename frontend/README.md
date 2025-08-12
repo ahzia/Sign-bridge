@@ -136,6 +136,34 @@ The configuration automatically generates API endpoints based on the backend URL
 - Build frontend only: `npm run build:frontend`
 - Preview production build: `npm run preview`
 
+## 🌐 Production Testing
+
+### Serve Production Build in Browser
+Test the production build locally before deploying:
+
+```bash
+# Build and serve production version
+npm run build:and:serve
+
+# Or do it step by step:
+npm run build:frontend
+npm run serve:production
+
+# Kill the server if needed
+npm run serve:production:kill
+
+# Restart the server
+npm run serve:production:restart
+```
+
+**Available Scripts:**
+- `npm run serve:production` - Serve the production build at http://localhost:3000
+- `npm run serve:production:kill` - Kill any running server on port 3000
+- `npm run serve:production:restart` - Kill and restart the server
+- `npm run build:and:serve` - Build frontend and serve production version
+
+**Note:** Make sure the backend is running at the configured URL for full functionality.
+
 ---
 
 ## 📦 Project Structure
