@@ -11,11 +11,15 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "../scripts/start_app.sh",
-    "build:production": "../scripts/build_production.sh"
+    "build:production": "../scripts/build_production.sh",
+    "serve:production": "cd dist && python3 -m http.server 3000",
+    "serve:production:kill": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true",
+    "serve:production:restart": "npm run serve:production:kill && npm run serve:production",
+    "build:and:serve": "npm run build:frontend && npm run serve:production:restart"
   },
   "dependencies": {
+    "@sutton-signwriting/core": "^2.0.0",
     "@sutton-signwriting/font-ttf": "^1.1.0",
-    "@sutton-signwriting/sgnw-components": "^1.1.0",
     "@types/axios": "^0.9.36",
     "axios": "^1.10.0",
     "mp4-muxer": "^5.2.2",

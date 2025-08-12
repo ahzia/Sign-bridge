@@ -1,5 +1,5 @@
 import React from 'react';
-import SignWritingDisplay from './SignWritingDisplay';
+import SignWritingRenderer from './SignWritingRenderer';
 
 interface SignWritingSectionProps {
   signWriting: string[];
@@ -49,7 +49,7 @@ const SignWritingSection: React.FC<SignWritingSectionProps> = ({ signWriting, is
           <div className="h-full flex flex-col">
             <div className="h-full max-h-[350px] overflow-y-auto px-2">
               <div className={signWriting.length === 0 ? 'flex justify-center items-center h-full w-full' : ''}>
-                <SignWritingDisplay
+                <SignWritingRenderer
                   fswTokens={signWriting.length === 0 ? [] : signWriting}
                   direction="col"
                   className="w-full min-w-0 flex-col overflow-y-auto h-full"
