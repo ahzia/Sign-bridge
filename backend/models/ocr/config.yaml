@@ -1,0 +1,16 @@
+model:
+  encoder_path: models/ocr/encoder.onnx
+  processor_name: microsoft/trocr-small-printed
+  input_size: [384, 384]
+  max_length: 128
+
+npu:
+  enabled: true
+  fallback_to_cpu: true
+  performance_mode: burst
+
+preprocessing:
+  resize: [384, 384]
+  normalize: true
+  mean: [0.5, 0.5, 0.5]
+  std: [0.5, 0.5, 0.5]

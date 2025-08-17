@@ -5,8 +5,4 @@ torch==2.0.1
 signwriting-translation @ git+https://github.com/sign-language-processing/signwriting-translation.git
 requests
 python-dotenv
-pillow
-numpy
-pyyaml
-onnx
-onnxruntime-qnn
+git+https://github.com/openai/whisper.git
