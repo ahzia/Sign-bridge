@@ -24,7 +24,8 @@ class Config:
     # Whisper Model Configuration
     WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "base")
     WHISPER_DEVICE: str = os.getenv("WHISPER_DEVICE", "cpu")
-    
+    WHISPER_ENCODER_PATH = os.getenv("WHISPER_ENCODER_PATH", "models/WhisperEncoder.onnx")
+    WHISPER_DECODER_PATH = os.getenv("WHISPER_DECODER_PATH", "models/WhisperDecoder.onnx")
     # CORS Configuration
     @classmethod
     def get_cors_origins(cls) -> List[str]:

@@ -23,7 +23,7 @@ export interface GeneratePoseResponse {
 const ApiService = {
   async transcribe(audioBlob: Blob): Promise<TranscribeResponse> {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('audio', audioBlob, 'recording.mp3');
     const response = await axios.post<TranscribeResponse>(
       API_ENDPOINTS.TRANSCRIBE,
       formData,
