@@ -111,7 +111,7 @@ exe = EXE(
     # Copy the executable
     if platform.system() == "Windows":
         source = dist_dir / "backend.exe"
-        target = tauri_resources / "backend.exe"
+        target = tauri_resources / "backend"  # Tauri expects 'backend' without extension
     else:
         source = dist_dir / "backend"
         target = tauri_resources / "backend"

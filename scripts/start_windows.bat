@@ -24,3 +24,4 @@ echo 🌐 Frontend running on http://localhost:5173
 echo.
 echo Press any key to exit...
 pause >nul
+
