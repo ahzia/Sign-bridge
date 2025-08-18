@@ -4,6 +4,8 @@ import { API_ENDPOINTS } from '../config';
 // --- Types (move to src/types/ if needed) ---
 export interface TranscribeResponse {
   text: string;
+  provider?: string;
+  status?: string;
 }
 
 export interface SimplifyTextResponse {
