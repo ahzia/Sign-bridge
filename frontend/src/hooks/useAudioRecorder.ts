@@ -90,7 +90,7 @@ export function useAudioRecorder({ recordingSource, onRecordingComplete }: UseAu
         animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
       };
       updateAudioLevel();
-      let mimeType = 'audio/webm';
+      let mimeType = 'audio/mp3';
       if (!MediaRecorder.isTypeSupported(mimeType)) {
         if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
           mimeType = 'audio/webm;codecs=opus';
@@ -107,7 +107,7 @@ export function useAudioRecorder({ recordingSource, onRecordingComplete }: UseAu
         audioChunksRef.current.push(event.data);
       };
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         onRecordingComplete(audioBlob);
         audioChunksRef.current = [];
         if (audioContextRef.current) {
