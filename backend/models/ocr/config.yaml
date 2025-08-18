@@ -8,6 +8,7 @@ npu:
   enabled: true
   fallback_to_cpu: true
   performance_mode: burst
+  profiling: false  # Set to false in production to avoid profile files
 
 preprocessing:
   resize: [384, 384]

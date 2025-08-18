@@ -86,15 +86,40 @@ class OCRService:
                     return
                 
                 self.logger.info("🤖 Initializing OCR model...")
+                self.logger.info(f"📊 Available providers: {ort.get_available_providers()}")
+                self.logger.info(f"🎯 QNN available: {'QNNExecutionProvider' in ort.get_available_providers()}")
                 
                 # Setup ONNX Runtime session with QNN
                 sess_opts = ort.SessionOptions()
-                sess_opts.enable_profiling = True
+                # Enable profiling only if configured
+                profiling_enabled = self.config.get("npu", {}).get("profiling", False)
+                sess_opts.enable_profiling = profiling_enabled
                 sess_opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
                 
-                # Configure providers
+                # Configure providers - Use the working configuration from ocr-npu-test
                 providers = []
                 if self.config["npu"]["enabled"] and "QNNExecutionProvider" in ort.get_available_providers():
+                    # Set QNN backend path if not already set
+                    if not os.environ.get('QNN_BACKEND_PATH'):
+                        qnn_path = os.path.join(os.path.dirname(ort.__file__), 'capi')
+                        if os.path.exists(qnn_path):
+                            os.environ['QNN_BACKEND_PATH'] = qnn_path
+                            self.logger.info(f"🔧 Set QNN_BACKEND_PATH to: {qnn_path}")
+                        else:
+                            self.logger.warning(f"⚠️ QNN backend path not found: {qnn_path}")
+                            # Try alternative paths
+                            alt_paths = [
+                                os.path.join(os.path.dirname(ort.__file__), '..', 'capi'),
+                                os.path.join(os.path.dirname(ort.__file__), '..', '..', 'capi'),
+                                r"C:\Users\ahzia\AppData\Local\Programs\Python\Python312-arm64\Lib\site-packages\onnxruntime\capi"
+                            ]
+                            for alt_path in alt_paths:
+                                if os.path.exists(alt_path):
+                                    os.environ['QNN_BACKEND_PATH'] = alt_path
+                                    self.logger.info(f"🔧 Set QNN_BACKEND_PATH to alternative path: {alt_path}")
+                                    break
+                    
+                    # Use the exact configuration that works in ocr-npu-test
                     providers.append(('QNNExecutionProvider', {
                         'backend': 'QNN', 
                         'device_id': 0,
@@ -159,14 +184,15 @@ class OCRService:
             outputs = self.model.run(None, {input_name: input_tensor})
             t1 = time.perf_counter()
             
-            # Get profiling data
+            # Get profiling data only if enabled
             profile_file = None
-            try:
-                profile_path = self.model.end_profiling()
-                profile_file = f"qnn_profile_ocr_{int(time.time())}.json"
-                os.rename(profile_path, profile_file)
-            except Exception as e:
-                self.logger.warning(f"⚠️ Could not save profiling data: {e}")
+            if self.config.get("npu", {}).get("profiling", False):
+                try:
+                    profile_path = self.model.end_profiling()
+                    profile_file = f"qnn_profile_ocr_{int(time.time())}.json"
+                    os.rename(profile_path, profile_file)
+                except Exception as e:
+                    self.logger.warning(f"⚠️ Could not save profiling data: {e}")
             
             # Process outputs to extract text with enhanced recognition
             recognized_text = self._enhanced_text_recognition(image, outputs[0])
@@ -308,11 +334,34 @@ class OCRService:
     
     def get_status(self) -> Dict[str, Any]:
         """Get the status of the OCR service"""
+        available_providers = ort.get_available_providers()
+        qnn_available = "QNNExecutionProvider" in available_providers
+        
+        # Get detailed QNN information
+        qnn_info = {}
+        if qnn_available:
+            try:
+                qnn_info = {
+                    "available": True,
+                    "providers": [p for p in available_providers if "QNN" in p],
+                    "total_providers": len(available_providers),
+                    "model_providers": self.model.get_providers() if self.model else []
+                }
+            except Exception as e:
+                qnn_info = {"available": True, "error": str(e)}
+        else:
+            qnn_info = {
+                "available": False,
+                "reason": "QNNExecutionProvider not in available providers",
+                "available_providers": available_providers
+            }
+        
         return {
             "initialized": self.is_initialized,
             "model_loaded": self.model is not None,
-            "providers_available": ort.get_available_providers(),
-            "qnn_available": "QNNExecutionProvider" in ort.get_available_providers(),
+            "providers_available": available_providers,
+            "qnn_available": qnn_available,
+            "qnn_info": qnn_info,
             "config": self.config
         }
 

@@ -9,9 +9,28 @@ import tempfile
 import logging
 import asyncio
 
-from api.signwriting_translation_pytorch import router as signwriting_translation_pytorch_router
-from api.simplify_text import router as simplify_text_router
-from api.pose_generation import router as pose_generation_router
+# Conditionally import modules that may not be available
+try:
+    from api.signwriting_translation_pytorch import router as signwriting_translation_pytorch_router
+    SIGNWRITING_AVAILABLE = True
+except ImportError:
+    print("⚠️  SignWriting translation not available (torch not installed)")
+    SIGNWRITING_AVAILABLE = False
+
+try:
+    from api.simplify_text import router as simplify_text_router
+    SIMPLIFY_AVAILABLE = True
+except ImportError:
+    print("⚠️  Text simplification not available")
+    SIMPLIFY_AVAILABLE = False
+
+try:
+    from api.pose_generation import router as pose_generation_router
+    POSE_AVAILABLE = True
+except ImportError:
+    print("⚠️  Pose generation not available")
+    POSE_AVAILABLE = False
+
 from api.ocr_transcription import router as ocr_router
 from config import config
 
@@ -51,9 +70,13 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Backend is running"}
 
-app.include_router(signwriting_translation_pytorch_router)
-app.include_router(simplify_text_router)
-app.include_router(pose_generation_router)
+# Conditionally include routers
+if SIGNWRITING_AVAILABLE:
+    app.include_router(signwriting_translation_pytorch_router)
+if SIMPLIFY_AVAILABLE:
+    app.include_router(simplify_text_router)
+if POSE_AVAILABLE:
+    app.include_router(pose_generation_router)
 app.include_router(ocr_router)
 
 if __name__ == "__main__":

@@ -155,3 +155,7 @@ translate/
 simple_whisper_transcription_uv_config
 simple-whisper-transcription
 ocr-npu-test
+
+# ONNX Runtime profiling files
+qnn_profile_ocr_*.json
+onnxruntime_profile_*.json
