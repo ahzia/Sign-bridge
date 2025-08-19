@@ -1,0 +1,24 @@
+# Tesseract OCR with NPU Support
+# Core OCR dependencies
+pytesseract==0.3.13
+Pillow==11.3.0
+
+# NPU and ONNX Runtime support
+onnxruntime-qnn==1.22.0
+onnx==1.17.0
+
+# Image processing and utilities
+numpy==1.26.4
+opencv-python==4.9.0.80
+
+# Configuration and logging
+PyYAML==6.0.1
+coloredlogs==15.0.1
+
+# Development and testing
+pytest==8.0.0
+pytest-cov==4.1.0
+
+# Optional: For advanced image preprocessing
+scikit-image==0.22.0
+

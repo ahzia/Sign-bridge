@@ -155,6 +155,9 @@ translate/
 simple_whisper_transcription_uv_config
 simple-whisper-transcription
 ocr-npu-test
+qualcomm-easyocr-test
+tesseract-ocr-npu
+ocr
 
 # ONNX Runtime profiling files
 qnn_profile_ocr_*.json
