@@ -158,6 +158,8 @@ ocr-npu-test
 qualcomm-easyocr-test
 tesseract-ocr-npu
 ocr
+models
+npu_venv/
 
 # ONNX Runtime profiling files
 qnn_profile_ocr_*.json
