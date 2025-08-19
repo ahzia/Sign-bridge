@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AudioRecorder from '../components/AudioRecorder';
 import { useTheme } from '../contexts/ThemeContext';
-import ApiService, { type TranscribeResponse, type SimplifyTextResponse, type TranslateSignWritingResponse, type GeneratePoseResponse } from '../services/ApiService';
+import ApiService, { type TranscribeResponse, type SimplifyTextResponse, type TranslateSignWritingResponse, type GeneratePoseResponse, type OCRTranscribeResponse } from '../services/ApiService';
 import Header from '../components/Header';
 import InputSection from '../components/InputSection';
 import SignWritingSection from '../components/SignWritingSection';
@@ -26,6 +26,7 @@ function App() {
   const [showSimplifyModal, setShowSimplifyModal] = useState(false);
   const [simplifiedText, setSimplifiedText] = useState('');
   const [pendingOriginalText, setPendingOriginalText] = useState('');
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
   const translationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -155,6 +156,43 @@ function App() {
     }
   };
 
+  const handleImageUpload = async (file: File) => {
+    setIsProcessingImage(true);
+    setError(null);
+    setInputText('');
+    setSignWriting([]);
+    setPoseFile(null);
+    setTranscription('');
+    
+    try {
+      const ocrResponse = await ApiService.ocrTranscribe(file);
+      
+      if (ocrResponse.success && ocrResponse.recognized_text) {
+        const recognizedText = ocrResponse.recognized_text;
+        setInputText(recognizedText);
+        setTranscription(recognizedText);
+        
+        // Log OCR performance for debugging
+        console.log(`✅ OCR completed in ${ocrResponse.inference_time_ms}ms`);
+        console.log(`📊 NPU used: ${ocrResponse.npu_used}`);
+        console.log(`🎯 Confidence: ${ocrResponse.confidence}`);
+        
+        // Don't auto-trigger translation - let user click translate button
+      } else {
+        setError('No text was recognized from the image. Please try a different image.');
+      }
+    } catch (error) {
+      console.error('OCR processing failed:', error);
+      setError('Failed to process image. Please try again.');
+    } finally {
+      setIsProcessingImage(false);
+    }
+  };
+
+  const handleImageError = (error: string) => {
+    setError(error);
+  };
+
   return (
     <div className="min-h-screen transition-all duration-300">
       <Header
@@ -178,6 +216,9 @@ function App() {
             triggerTranslation={triggerTranslation}
             simplifyText={simplifyText}
             isTranslating={isTranslating}
+            isProcessingImage={isProcessingImage}
+            handleImageUpload={handleImageUpload}
+            handleImageError={handleImageError}
           />
 
           {/* SignWriting Display - Enhanced */}

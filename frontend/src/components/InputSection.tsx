@@ -1,4 +1,5 @@
 import React from 'react';
+import ImageUpload from './ImageUpload';
 
 interface InputSectionProps {
   inputText: string;
@@ -10,6 +11,9 @@ interface InputSectionProps {
   triggerTranslation: (text: string) => void;
   simplifyText: boolean;
   isTranslating: boolean;
+  isProcessingImage: boolean;
+  handleImageUpload: (file: File) => void;
+  handleImageError: (error: string) => void;
 }
 
 // Common ActionButton component for reuse
@@ -55,6 +59,9 @@ const InputSection: React.FC<InputSectionProps> = ({
   triggerTranslation,
   simplifyText,
   isTranslating,
+  isProcessingImage,
+  handleImageUpload,
+  handleImageError,
 }) => (
   <div className="xl:col-span-5 h-full">
     <div className="card h-full flex flex-col bg-white dark:bg-theme-secondary shadow-sm sm:shadow-xl hover:shadow-md sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
@@ -101,10 +108,10 @@ const InputSection: React.FC<InputSectionProps> = ({
           </div>
         )}
         {/* Enhanced Action Buttons */}
-        <div className="flex flex-row gap-2 sm:gap-4 mt-3 sm:mt-6">
+        <div className="flex flex-row gap-2 sm:gap-3 mt-3 sm:mt-6">
           <ActionButton
             onClick={handleRecordClick}
-            disabled={isRecording || isTranscribing}
+            disabled={isRecording || isTranscribing || isProcessingImage}
             loading={false}
             color="success"
             ariaLabel="Start recording"
@@ -118,9 +125,20 @@ const InputSection: React.FC<InputSectionProps> = ({
               <span className="hidden sm:inline ml-2">{isRecording ? 'Recording...' : 'Record Voice'}</span>
             </div>
           </ActionButton>
+          
+          {/* Image Upload Icon - Centered */}
+          <div className="flex items-center justify-center">
+            <ImageUpload
+              onImageProcessed={handleImageUpload}
+              onError={handleImageError}
+              disabled={isRecording || isTranscribing || isProcessingImage}
+              loading={isProcessingImage}
+            />
+          </div>
+          
           <ActionButton
             onClick={simplifyText ? handleSimplifyAndTranslate : () => triggerTranslation(inputText)}
-            disabled={isTranslating || isTranscribing || inputText.trim() === ''}
+            disabled={isTranslating || isTranscribing || isProcessingImage || inputText.trim() === ''}
             loading={isTranslating}
             color="primary"
             ariaLabel={simplifyText ? 'Simplify and translate text' : 'Translate text'}

@@ -104,6 +104,7 @@ py311_venv/
 ENV/
 env.bak/
 venv.bak/
+ocr_env/
 
 # Spyder project settings
 .spyderproject
@@ -151,3 +152,15 @@ backend/__pycache__/
 
 #the uneeded repos
 translate/
+simple_whisper_transcription_uv_config
+simple-whisper-transcription
+ocr-npu-test
+qualcomm-easyocr-test
+tesseract-ocr-npu
+ocr
+models
+npu_venv/
+
+# ONNX Runtime profiling files
+qnn_profile_ocr_*.json
+onnxruntime_profile_*.json

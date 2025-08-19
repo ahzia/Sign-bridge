@@ -1,0 +1,33 @@
+# Tesseract OCR Configuration with NPU Support
+tesseract:
+  enabled: true
+  language: eng
+  config: --psm 6 --oem 3
+  timeout: 30
+  # PSM modes: 6=uniform block of text, 7=single text line, 8=single word
+  # OEM modes: 3=default, 1=neural nets LSTM only
+
+npu:
+  enabled: true
+  profiling: false
+  backend_path: ""
+  performance_mode: "high_performance"
+  # QNN settings for Snapdragon X Elite
+
+image_processing:
+  preprocess: true
+  resize: true
+  target_size: [800, 600]
+  enhance_contrast: true
+  denoise: false
+
+performance:
+  batch_size: 1
+  max_workers: 1
+  cache_models: true
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "tesseract_ocr.log"
+

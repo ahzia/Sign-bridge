@@ -84,6 +84,8 @@ export const API_ENDPOINTS = {
   SIMPLIFY_TEXT: `${config.BACKEND_URL}/simplify_text`,
   TRANSLATE_SIGNWRITING: `${config.BACKEND_URL}/translate_signwriting`,
   GENERATE_POSE: `${config.BACKEND_URL}/generate_pose`,
+  OCR_TRANSCRIBE: `${config.BACKEND_URL}/api/ocr/transcribe`,
+  OCR_STATUS: `${config.BACKEND_URL}/api/ocr/status`,
 } as const;
 
 // Validate configuration on import
