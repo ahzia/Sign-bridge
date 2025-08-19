@@ -151,3 +151,14 @@ backend/__pycache__/
 
 #the uneeded repos
 translate/
+tesseract-ocr-npu/
+simple_whisper_transcription_uv_config/
+simple-whisper-transcription/
+qualcomm-easyocr-test/
+ocr/
+ocr-npu-test/
+
+
+backend/ocr_env/
+backend/npu_venv/
+backend/models/
