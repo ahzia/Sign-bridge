@@ -20,7 +20,13 @@ def detect_platform():
         if machine == "ARM64":
             return "windows_arm64"
         else:
-            return "windows_x64"
+            # Check if NPU models are available for x64
+            project_root = Path(__file__).parent.parent
+            models_dir = project_root / "backend" / "models"
+            if (models_dir / "WhisperEncoder.onnx").exists() and (models_dir / "WhisperDecoder.onnx").exists():
+                return "windows_x64_npu"
+            else:
+                return "windows_x64"
     elif system == "Darwin":
         return "macos"
     elif system == "Linux":
@@ -30,7 +36,7 @@ def detect_platform():
 
 def get_python_path(backend_dir, platform_id):
     """Get the appropriate Python path based on platform."""
-    if platform_id == "windows_arm64":
+    if platform_id in ["windows_arm64", "windows_x64_npu"]:
         # Use the NPU virtual environment
         return backend_dir / ".venv" / "Scripts" / "python.exe"
     elif platform_id == "macos":
@@ -38,7 +44,7 @@ def get_python_path(backend_dir, platform_id):
         return backend_dir / "py311_venv" / "bin" / "python"
     else:
         # Fallback to system Python
-        return sys.executable
+        return Path(sys.executable)
 
 def get_hidden_imports(platform_id):
     """Get platform-specific hidden imports for PyInstaller."""
@@ -56,7 +62,7 @@ def get_hidden_imports(platform_id):
         'pydantic_core', 'numpy', 'tqdm', 'numba'
     ]
     
-    if platform_id == "windows_arm64":
+    if platform_id in ["windows_arm64", "windows_x64_npu"]:
         # Add NPU-specific imports
         base_imports.extend([
             'whisper', 'qai_hub', 'qai_hub_models', 'onnxruntime_qnn',
@@ -85,7 +91,7 @@ def get_data_files(backend_dir, platform_id):
         ('env.example', '.')
     ]
     
-    if platform_id == "windows_arm64":
+    if platform_id in ["windows_arm64", "windows_x64_npu"]:
         # Add NPU model files
         models_dir = backend_dir / "models"
         if models_dir.exists():
