@@ -16,19 +16,25 @@ from qai_hub_models.models._shared.whisper.app import WhisperApp
 from qai_hub_models.utils.onnx_torch_wrapper import OnnxModelTorchWrapper
 import yaml 
 
+model = None
+
 def get_model():
     """Initialize and return the Whisper model."""
-
-    model = WhisperApp(
-        OnnxModelTorchWrapper.OnNPU(config.WHISPER_ENCODER_PATH),
-        OnnxModelTorchWrapper.OnNPU(config.WHISPER_DECODER_PATH),
-        num_decoder_blocks=6,
-        num_decoder_heads=8,
-        attention_dim=512,
-        mean_decode_len=224,
-    )
-
-    return model
+    global model
+    if model is not None:
+        logging.info("Using existing Whisper model instance.")
+        return model
+    else:
+        logging.info("Loading Whisper model...")
+        model = WhisperApp(
+            OnnxModelTorchWrapper.OnNPU(config.WHISPER_ENCODER_PATH),
+            OnnxModelTorchWrapper.OnNPU(config.WHISPER_DECODER_PATH),
+            num_decoder_blocks=6,
+            num_decoder_heads=8,
+            attention_dim=512,
+            mean_decode_len=224,
+        )
+        return model
 
 
 @router.post("/transcribe")
@@ -57,7 +63,6 @@ async def transcribe(audio: UploadFile = File(...)):
             if cleaned_line:
                 cleaned_lines.append(cleaned_line)
         cleaned_transcription = " ".join(cleaned_lines)
-        logging.info(f"Transcription is: {cleaned_transcription}")
         return {"text": cleaned_transcription}
 
     finally:
