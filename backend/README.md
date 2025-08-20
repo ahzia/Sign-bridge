@@ -110,7 +110,7 @@ When the desired environment is activated, run:
 
 ```bash
 # Using the run script
-python run_backend.py
+python main.py
 
 # Or directly with uvicorn
 uvicorn main:app --reload
