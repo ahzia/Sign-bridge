@@ -37,7 +37,7 @@ else
     source py311_venv/bin/activate
     
     # Start backend in background
-    python run_backend.py &
+    python main.py &
     BACKEND_PID=$!
     cd ..
     
