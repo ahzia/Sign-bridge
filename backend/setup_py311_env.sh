@@ -10,4 +10,4 @@ source py311_venv/bin/activate
 pip install --upgrade pip
 
 # Install backend dependencies
-pip install -r requirements.txt
+pip install -r requirement_main.txt

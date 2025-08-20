@@ -11,11 +11,20 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node ../scripts/start_app.js",
+    "start:unified": "python ../scripts/start_unified.py",
+    "start:windows": "node ../scripts/start_app.js",
+    "start:mac": "bash ../scripts/start_app.sh",
     "build:production": "node ../scripts/build_production.js",
+    "build:production:unified": "python ../scripts/build_backend.py && npm run build",
+    "build:production:windows": "bash ../scripts/build_production_windows.bat",
+    "build:production:mac": "bash ../scripts/build_production.sh",
     "serve:production": "cd dist && python3 -m http.server 3000",
     "serve:production:kill": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true",
     "serve:production:restart": "npm run serve:production:kill && npm run serve:production",
-    "build:and:serve": "npm run build:frontend && npm run serve:production:restart"
+    "build:and:serve": "npm run build:frontend && npm run serve:production:restart",
+    "setup:backend": "python ../backend/setup_unified.py",
+    "setup:backend:windows": "powershell -ExecutionPolicy Bypass -File ../backend/setup_backend.ps1",
+    "setup:backend:mac": "bash ../backend/setup_py311_env.sh"
   },
   "dependencies": {
     "@sutton-signwriting/core": "^2.0.0",
