@@ -138,7 +138,7 @@ Write-Host "2. Run: cd backend && .\py311_venv\Scripts\Activate.ps1 && pip insta
 Write-Host "3. Run: cd frontend && npm run tauri:dev" -ForegroundColor White
 Write-Host ""
 Write-Host "🔧 For development:" -ForegroundColor Cyan
-Write-Host "   Terminal 1: cd backend && .\py311_venv\Scripts\Activate.ps1 && python run_backend.py" -ForegroundColor White
+Write-Host "   Terminal 1: cd backend && .\.venv\Scripts\Activate.ps1 && python main.py" -ForegroundColor White
 Write-Host "   Terminal 2: cd frontend && npm run tauri:dev" -ForegroundColor White
 Write-Host ""
 Write-Host "🏭 For production build:" -ForegroundColor Cyan

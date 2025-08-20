@@ -5,8 +5,8 @@ cd /d "%~dp0.."
 
 echo 🔧 Starting backend...
 cd backend
-call py311_venv\Scripts\activate.bat
-start /B python run_backend.py
+call .venv\Scripts\activate.bat
+start /B python main.py
 cd ..
 
 echo ⏳ Waiting for backend to start...
