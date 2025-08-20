@@ -70,8 +70,7 @@ pub fn run() {
         // Wait a moment for the app to fully start
         thread::sleep(std::time::Duration::from_millis(1000));
         
-        // Start the backend by directly calling the function
-        // We'll use a simpler approach - just start the backend process directly
+        // Start the backend process
         let app_dir = std::env::current_exe()
             .unwrap_or_else(|_| std::env::current_dir().unwrap())
             .parent()
@@ -85,10 +84,36 @@ pub fn run() {
         };
         
         if backend_path.exists() {
-            let _ = Command::new(backend_path)
+            match Command::new(&backend_path)
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
-                .spawn();
+                .spawn() {
+                Ok(mut child) => {
+                    // Wait for the backend to start and check if it's still running
+                    thread::sleep(std::time::Duration::from_millis(2000));
+                    
+                    match child.try_wait() {
+                        Ok(Some(status)) => {
+                            eprintln!("Backend process exited with status: {:?}", status);
+                        }
+                        Ok(None) => {
+                            // Backend is still running, monitor it
+                            thread::spawn(move || {
+                                let _ = child.wait();
+                                eprintln!("Backend process has stopped");
+                            });
+                        }
+                        Err(e) => {
+                            eprintln!("Error checking backend process: {}", e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to start backend: {}", e);
+                }
+            }
+        } else {
+            eprintln!("Backend executable not found at: {:?}", backend_path);
         }
       });
       
