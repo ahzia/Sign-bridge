@@ -9,6 +9,14 @@ import logging
 import os
 from typing import Dict, Any, Optional
 
+# Apply patches for production build
+try:
+    from qai_hub_patch import apply_patches
+    apply_patches()
+except ImportError:
+    # Patch module not available, continue without patches
+    pass
+
 from config import config
 from platform_detector import get_platform_detector, is_feature_available
 
@@ -19,11 +27,37 @@ platform_detector = get_platform_detector()
 logging.basicConfig(level=getattr(logging, config.LOG_LEVEL))
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
+# Modern lifespan handler for FastAPI
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern lifespan handler for FastAPI startup and shutdown."""
+    # Startup
+    logger.info("Starting SignBridge Backend")
+    logger.info(f"Server will be available at: http://{config.HOST}:{config.PORT}")
+    logger.info("-" * 60)
+    
+    load_platform_features()
+    
+    # Print summary
+    logger.info("📊 Feature Loading Summary:")
+    for feature, loaded in loaded_features.items():
+        status = "OK" if loaded else "FAILED"
+        logger.info(f"   {feature}: {status}")
+    logger.info("-" * 60)
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down SignBridge Backend")
+
+# Initialize FastAPI app with lifespan handler
 app = FastAPI(
     title="SignBridge Backend",
     description="Dynamic Voice-to-Sign Translation API with platform-specific optimizations",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -38,8 +72,6 @@ app.add_middleware(
 # Track loaded features
 loaded_features: Dict[str, bool] = {}
 feature_routers: Dict[str, Any] = {}
-
-
 def load_feature_safely(feature_name: str, module_path: str, router_name: str = "router") -> bool:
     """
     Safely load a feature module with error handling.
@@ -64,7 +96,7 @@ def load_feature_safely(feature_name: str, module_path: str, router_name: str = 
         loaded_features[feature_name] = True
         feature_routers[feature_name] = router
         
-        logger.info(f"✅ {feature_name} loaded successfully")
+        logger.info(f"{feature_name} loaded successfully")
         return True
         
     except ImportError as e:
@@ -80,13 +112,16 @@ def load_feature_safely(feature_name: str, module_path: str, router_name: str = 
 
 def load_platform_features():
     """Load features based on platform detection."""
-    logger.info("🔍 Loading platform-specific features...")
+    logger.info("Loading platform-specific features...")
     platform_detector.print_platform_info()
     
     # Load Whisper transcription based on platform
     whisper_module = platform_detector.get_whisper_module()
     if whisper_module and is_feature_available("speech_to_text"):
         load_feature_safely("Speech-to-Text", whisper_module)
+        
+        # Whisper model will be initialized on first use for better UX
+        logger.info("📝 Whisper model will be initialized on first use")
     else:
         logger.info("⚠️  Speech-to-Text not available on this platform")
         loaded_features["Speech-to-Text"] = False
@@ -179,10 +214,20 @@ async def platform_info():
 @app.get("/features")
 async def features_status():
     """Get detailed feature status."""
+    # Get Whisper model status if available
+    whisper_status = None
+    if "Speech-to-Text" in loaded_features and loaded_features["Speech-to-Text"]:
+        try:
+            from api.transcribe import get_model_status
+            whisper_status = get_model_status()
+        except Exception as e:
+            whisper_status = {"error": str(e)}
+    
     return {
         "loaded_features": loaded_features,
         "available_features": platform_detector.config["features"],
-        "platform_id": platform_detector.platform_id
+        "platform_id": platform_detector.platform_id,
+        "whisper_model": whisper_status
     }
 
 
@@ -270,12 +315,15 @@ async def setup_guide():
     })
 
 
-# Load features on startup
-@app.on_event("startup")
-async def startup_event():
-    """Load platform-specific features on startup."""
-    logger.info("🚀 Starting SignBridge Backend")
-    logger.info(f"📍 Server will be available at: http://{config.HOST}:{config.PORT}")
+# Modern lifespan handler for FastAPI
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern lifespan handler for FastAPI startup and shutdown."""
+    # Startup
+    logger.info("Starting SignBridge Backend")
+    logger.info(f"Server will be available at: http://{config.HOST}:{config.PORT}")
     logger.info("-" * 60)
     
     load_platform_features()
@@ -283,16 +331,21 @@ async def startup_event():
     # Print summary
     logger.info("📊 Feature Loading Summary:")
     for feature, loaded in loaded_features.items():
-        status = "✅" if loaded else "❌"
+        status = "OK" if loaded else "FAILED"
         logger.info(f"   {feature}: {status}")
     logger.info("-" * 60)
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down SignBridge Backend")
 
 
 if __name__ == "__main__":
     import uvicorn
     
-    print("🚀 Starting SignBridge Backend (Dynamic Version)")
-    print(f"📍 Server will be available at: http://{config.HOST}:{config.PORT}")
+    print("Starting SignBridge Backend (Dynamic Version)")
+    print(f"Server will be available at: http://{config.HOST}:{config.PORT}")
     print("-" * 60)
     
     # Load features before starting server
@@ -303,5 +356,5 @@ if __name__ == "__main__":
         "main:app",
         host=config.HOST,
         port=config.PORT,
-        reload=config.DEBUG
+        reload=False  # Disable reload in production to prevent restart loops
     )

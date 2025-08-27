@@ -1,0 +1,63 @@
+SignBridge System Requirements
+=============================
+
+MINIMUM REQUIREMENTS:
+====================
+Operating System: Windows 10 (version 1903) or Windows 11
+Architecture: ARM64 (64-bit)
+Processor: Snapdragon X Elite or compatible ARM64 processor
+Memory: 8 GB RAM
+Storage: 2 GB available disk space
+Graphics: Integrated graphics (NPU acceleration supported)
+Network: Internet connection for initial setup
+
+RECOMMENDED REQUIREMENTS:
+========================
+Operating System: Windows 11 (latest version)
+Architecture: ARM64 (64-bit)
+Processor: Snapdragon X Elite with NPU
+Memory: 16 GB RAM
+Storage: 5 GB available disk space
+Graphics: Integrated graphics with NPU support
+Network: High-speed internet connection (10+ Mbps)
+
+HARDWARE COMPATIBILITY:
+======================
+✅ Snapdragon X Elite (Oryon CPU + Adreno GPU + Hexagon NPU)
+✅ Snapdragon X Plus (Oryon CPU + Adreno GPU + Hexagon NPU)
+❌ Intel x86 processors (not supported)
+❌ AMD x86 processors (not supported)
+❌ Apple Silicon (not supported)
+
+SOFTWARE DEPENDENCIES:
+=====================
+- Windows 10/11 ARM64
+- Latest Windows updates
+- Microsoft Visual C++ Redistributable (included in installer)
+- .NET Framework (included in Windows 10/11)
+
+PERFORMANCE NOTES:
+=================
+- First launch: 2-3 minutes for AI model initialization
+- Subsequent launches: 10-15 seconds
+- Real-time transcription: < 500ms latency
+- 3D animation rendering: 30-60 FPS
+- Memory usage: 2-4 GB during operation
+
+TROUBLESHOOTING:
+===============
+If the app doesn't start:
+1. Verify you have ARM64 Windows
+2. Check Windows updates
+3. Ensure sufficient disk space
+4. Verify internet connection
+
+If performance is slow:
+1. Close other applications
+2. Ensure sufficient RAM (8GB+)
+3. Check for background processes
+4. Verify NPU drivers are installed
+
+Version: 0.1.0
+Last Updated: August 2025
+

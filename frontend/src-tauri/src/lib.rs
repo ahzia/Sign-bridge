@@ -21,11 +21,7 @@ async fn start_backend(state: tauri::State<'_, BackendState>) -> Result<(), Stri
         .to_path_buf();
     
     // Path to the bundled Python backend
-    let backend_path = if cfg!(target_os = "windows") {
-        app_dir.join("resources").join("backend.exe")
-    } else {
-        app_dir.join("resources").join("backend")
-    };
+    let backend_path = app_dir.join("resources").join("backend");
     
     // Start the backend process
     let child = Command::new(backend_path)
@@ -77,11 +73,7 @@ pub fn run() {
             .unwrap_or(&std::env::current_dir().unwrap())
             .to_path_buf();
         
-        let backend_path = if cfg!(target_os = "windows") {
-            app_dir.join("resources").join("backend.exe")
-        } else {
-            app_dir.join("resources").join("backend")
-        };
+        let backend_path = app_dir.join("resources").join("backend");
         
         if backend_path.exists() {
             match Command::new(&backend_path)

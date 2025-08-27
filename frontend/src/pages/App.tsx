@@ -9,6 +9,8 @@ import AnimationSection from '../components/AnimationSection';
 import ErrorDisplay from '../components/ErrorDisplay';
 import TranscriptionDisplay from '../components/TranscriptionDisplay';
 import SimplifyChoiceModal from '../components/SimplifyChoiceModal';
+import ModelInitializationStatus from '../components/ModelInitializationStatus';
+import DebugPanel from '../components/DebugPanel';
 
 function App() {
   const [inputText, setInputText] = useState('');
@@ -26,6 +28,8 @@ function App() {
   const [showSimplifyModal, setShowSimplifyModal] = useState(false);
   const [simplifiedText, setSimplifiedText] = useState('');
   const [pendingOriginalText, setPendingOriginalText] = useState('');
+  const [showModelInitialization, setShowModelInitialization] = useState(true);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
   const translationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -119,8 +123,13 @@ function App() {
       setInputText(originalText);
       setIsTranscribing(false);
       triggerTranslation(originalText);
-    } catch {
-      setError('Transcription failed. Please try again.');
+    } catch (error: any) {
+      // Check if it's a model initialization error
+      if (error?.response?.status === 503 && error?.response?.data?.detail?.includes('initializing')) {
+        setError('AI model is still initializing. Please wait a moment and try again.');
+      } else {
+        setError('Transcription failed. Please try again.');
+      }
       setIsTranscribing(false);
     }
   };
@@ -157,6 +166,14 @@ function App() {
 
   return (
     <div className="min-h-screen transition-all duration-300">
+      {/* Model Initialization Status */}
+      {showModelInitialization && (
+        <ModelInitializationStatus
+          onInitializationComplete={() => setShowModelInitialization(false)}
+          showOnlyWhenInitializing={false}
+        />
+      )}
+      
       <Header
         theme={theme}
         toggleTheme={toggleTheme}
@@ -213,6 +230,12 @@ function App() {
           onClose={() => setIsRecording(false)}
         />
       )}
+
+      {/* Debug Panel */}
+      <DebugPanel
+        isVisible={showDebugPanel}
+        onToggle={() => setShowDebugPanel(!showDebugPanel)}
+      />
     </div>
   );
 }

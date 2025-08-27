@@ -162,3 +162,4 @@ ocr-npu-test/
 backend/ocr_env/
 backend/npu_venv/
 backend/models/
+ai-hub-models/

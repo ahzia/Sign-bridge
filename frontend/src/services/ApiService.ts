@@ -21,6 +21,30 @@ export interface GeneratePoseResponse {
 
 // --- API Service ---
 const ApiService = {
+  async get(endpoint: string): Promise<any> {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000'}${endpoint}`, {
+        timeout: 10000
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`GET ${endpoint} failed:`, error);
+      throw new Error(`Failed to fetch ${endpoint}. Please check if the backend is running.`);
+    }
+  },
+
+  async post(endpoint: string, data?: any): Promise<any> {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000'}${endpoint}`, data, {
+        timeout: 15000
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`POST ${endpoint} failed:`, error);
+      throw new Error(`Failed to post to ${endpoint}. Please check if the backend is running.`);
+    }
+  },
+
   async checkHealth(): Promise<boolean> {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000'}/health`, {

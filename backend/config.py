@@ -24,8 +24,36 @@ class Config:
     # Whisper Model Configuration
     WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "base")
     WHISPER_DEVICE: str = os.getenv("WHISPER_DEVICE", "cpu")
-    WHISPER_ENCODER_PATH = os.getenv("WHISPER_ENCODER_PATH", "models/WhisperEncoder.onnx")
-    WHISPER_DECODER_PATH = os.getenv("WHISPER_DECODER_PATH", "models/WhisperDecoder.onnx")
+    
+    # Handle model paths for both development and bundled environments
+    @classmethod
+    def _get_model_path(cls, relative_path: str) -> str:
+        """Get absolute path to model file, handling both development and bundled environments."""
+        import sys
+        
+        # Check if we're running in a PyInstaller bundle
+        if getattr(sys, 'frozen', False):
+            # We're in a PyInstaller bundle
+            bundle_dir = sys._MEIPASS
+            # In the bundle, models are in the 'models' directory
+            return os.path.join(bundle_dir, relative_path)
+        else:
+            # We're in development mode
+            # Get the backend directory (parent of this config file)
+            backend_dir = os.path.dirname(os.path.abspath(__file__))
+            return os.path.join(backend_dir, relative_path)
+    
+    @property
+    def WHISPER_ENCODER_PATH(self) -> str:
+        """Get the path to the Whisper encoder model."""
+        relative_path = os.getenv("WHISPER_ENCODER_PATH", "models/WhisperEncoder.onnx")
+        return self._get_model_path(relative_path)
+    
+    @property
+    def WHISPER_DECODER_PATH(self) -> str:
+        """Get the path to the Whisper decoder model."""
+        relative_path = os.getenv("WHISPER_DECODER_PATH", "models/WhisperDecoder.onnx")
+        return self._get_model_path(relative_path)
     # CORS Configuration
     @classmethod
     def get_cors_origins(cls) -> List[str]:
@@ -48,9 +76,19 @@ class Config:
     @classmethod
     def validate(cls) -> None:
         """Validate required configuration values"""
+        print(f"Backend Configuration:")
+        print(f"   HOST: {cls.HOST}")
+        print(f"   PORT: {cls.PORT}")
+        print(f"   DEBUG: {cls.DEBUG}")
+        print(f"   LOG_LEVEL: {cls.LOG_LEVEL}")
+        print(f"   WHISPER_MODEL: {cls.WHISPER_MODEL}")
+        print(f"   WHISPER_DEVICE: {cls.WHISPER_DEVICE}")
+        print(f"   WHISPER_ENCODER_PATH: {config.WHISPER_ENCODER_PATH}")
+        print(f"   WHISPER_DECODER_PATH: {config.WHISPER_DECODER_PATH}")
+
         if not cls.GROQ_API_KEY:
             print("Warning: GROQ_API_KEY not set. Text simplification will not work.")
-        
+
         if not cls.POSE_API_URL:
             print("Warning: POSE_API_URL not set. Pose generation will not work.")
     

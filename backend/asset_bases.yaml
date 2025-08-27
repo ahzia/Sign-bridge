@@ -1,0 +1,15 @@
+store_url: https://qaihub-public-assets.s3.us-west-2.amazonaws.com/qai-hub-models
+web_asset_folder: models/{model_id}/web-assets
+static_web_banner_filename: model_demo.png
+animated_web_banner_filename: model_demo.mp4
+model_asset_folder: models/{model_id}/v{version}
+dataset_asset_folder: datasets/{dataset_id}/v{version}
+repo_url: https://github.com/quic/ai-hub-models/blob/main
+qaihm_repo: qai_hub_models/models/{model_id}
+labels_path: qai_hub_models/labels/{labels_file}
+example_use: qai_hub_models/models/{model_id}#example--usage
+huggingface_path: qualcomm/{model_name}
+models_website_url: https://aihub.qualcomm.com
+models_website_relative_path: models/{model_id}
+email_template: qai_hub_models/scripts/templates/email_template.txt
+genie_url: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie

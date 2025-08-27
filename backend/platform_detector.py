@@ -177,7 +177,7 @@ class PlatformDetector:
     def print_platform_info(self):
         """Print platform information for debugging."""
         info = self.get_platform_info()
-        print("🔍 Platform Detection Results:")
+        print("Platform Detection Results:")
         print(f"   Platform ID: {info['platform_id']}")
         print(f"   System: {info['system']}")
         print(f"   Machine: {info['machine']}")
@@ -185,7 +185,7 @@ class PlatformDetector:
         print(f"   Whisper Implementation: {info['config']['whisper_implementation']}")
         print(f"   Features Available:")
         for feature, available in info['config']['features'].items():
-            status = "✅" if available else "❌"
+            status = "OK" if available else "FAILED"
             print(f"     {feature}: {status}")
         print()
 
