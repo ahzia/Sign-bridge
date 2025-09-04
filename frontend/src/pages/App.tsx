@@ -65,16 +65,19 @@ function App() {
         const simplifyResponse = await ApiService.simplifyText(text);
         textToTranslate = simplifyResponse.simplified_text || text;
       }
-      
-      // 1. Translate to SignWriting
-      const translateResponse = await ApiService.translateSignWriting(textToTranslate);
-      const rawFsw = translateResponse.signwriting || '';
-      const fswTokens = rawFsw.trim().split(/\s+/).filter(token => token.length > 0);
-      setSignWriting(fswTokens);
-      setIsGeneratingSigns(false);
-
+      try {
+        // 1. Translate to SignWriting
+        const translateResponse = await ApiService.translateSignWriting(textToTranslate);
+        const rawFsw = translateResponse.signwriting || '';
+        const fswTokens = rawFsw.trim().split(/\s+/).filter(token => token.length > 0);
+        setSignWriting(fswTokens);
+        setIsGeneratingSigns(false);
+      } catch {
+        setSignWriting([]);
+        setIsGeneratingSigns(false);
+      }
       // 2. Generate pose file for animation
-      if (fswTokens.length > 0) {
+      if (textToTranslate.length > 0) {
         try {
           const poseResponse = await ApiService.generatePose(textToTranslate, 'en', 'ase');
           const { pose_data, data_format } = poseResponse;

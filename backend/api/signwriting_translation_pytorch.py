@@ -8,10 +8,23 @@ router = APIRouter()
 class TextRequest(BaseModel):
     text: str
 
+import sys
+import os
+from pathlib import Path
+if getattr(sys, 'frozen', False):
+    print("Running in a bundled environment")
+    path = Path(os.path.dirname(sys.executable)) / "_internal"
+elif __file__:
+    print("Running in a normal Python environment")
+    path = Path(os.path.dirname(__file__)).parent
+print("Determined path:", path)
+
 @router.post("/translate_signwriting")
 async def translate_signwriting(request: TextRequest):
     try:
-        model_path = "sign/sockeye-text-to-factored-signwriting"
+        print("path in signwriting translation is ",path)
+        print("getattr(sys, 'frozen', False) = ", getattr(sys, 'frozen', False))
+        model_path = str(path / Path("models--sign--sockeye-text-to-factored-signwriting"))
         spoken_language = "en"
         signed_language = "ase"
 
@@ -21,4 +34,5 @@ async def translate_signwriting(request: TextRequest):
         outputs = translate(translator, [model_input])
         return {"signwriting": outputs[0]}
     except Exception as e:
+        print("Translation error:", e)
         raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")

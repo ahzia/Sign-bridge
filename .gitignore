@@ -25,7 +25,7 @@ var/
 pip-wheel-metadata/
 share/python-wheels/
 *.manifest
-*.spec
+
 
 # Installer logs
 pip-log.txt
@@ -143,7 +143,6 @@ frontend/src-tauri/bundle/
 # Backend build artifacts
 backend/dist/
 backend/build/
-backend/*.spec
 
 # Temporary audio files
 temp_audio/

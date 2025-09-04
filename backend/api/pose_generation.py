@@ -16,15 +16,17 @@ async def generate_pose(request: PoseRequest):
     Generate pose data from text using the translate project's API
     """
     try:
-        # Construct the API URL
-        params = {
+        headers = {
+            "Content-Type": "application/json"
+        }
+        payload = {
             'text': request.text,
             'spoken': request.spoken_language,
             'signed': request.signed_language
         }
         
         # Make the API call - it returns binary pose data directly
-        response = requests.get(config.POSE_API_URL, params=params)
+        response = requests.post(config.POSE_API_URL, json=payload, headers=headers)
         response.raise_for_status()
         
         # The API returns binary pose data directly
