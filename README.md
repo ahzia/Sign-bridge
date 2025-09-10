@@ -7,7 +7,7 @@
 - **Track:** Edge AI Consumer Utility Application (Snapdragon® X Elite)
 - **Core Value:** Everyday utility for a broad audience, enabling real-time voice-to-sign translation on-device.
 - **Edge AI:** All core AI runs locally (Whisper, PyTorch SignWriting Model, etc.), with optional cloud-based text simplification (Groq + LLaMA).
-- **Cross-Platform:** Runs on Windows, macOS, Linux, and Snapdragon X Elite devices as a web or native desktop app (Tauri).
+- **Cross-Platform:** Runs on Windows, macOS, Linux, and Snapdragon X Elite devices as a web or native desktop app (Electron).
 
 ---
 
@@ -45,7 +45,7 @@ The easiest way to run SignBridge is using the integrated startup script:
 ./scripts/start_app.sh
 ```
 
-This will automatically start both the backend and frontend, and launch the Tauri desktop app.
+This will automatically start both the backend and frontend, and launch the Electron desktop app.
 
 ### 3. **Manual Setup (Development)**
 If you prefer to run components separately:
@@ -68,15 +68,15 @@ If you prefer to run components separately:
   npm install
   npm run dev
   # or for desktop app:
-  npm run tauri:dev
+  npm run electron:dev
   ```
 
-- The app will be available at [http://localhost:5173](http://localhost:5173) (web) or as a native window (Tauri).
+- The app will be available at [http://localhost:5173](http://localhost:5173) (web) or as a native window (Electron).
 
 ---
 
 ## Documentation
-- [Frontend README](./frontend/README.md): UI, Tauri, and web app details
+- [Frontend README](./frontend/README.md): UI, Electron, and web app details
 - [Backend README](./backend/README.md): API endpoints, Python setup, and model info
 
 ---
@@ -104,7 +104,7 @@ See the [plan/](./plan/) directory for detailed phase documents.
 | 5 | 2D Skeleton Animation | ✅ Done |
 | 6 | UI Packaging & Polish | ✅ Done |
 | 7 | UI Enhancements | ✅ Done |
-| 8 | Tauri Integration | ✅ Done |
+| 8 | Electron Integration | ✅ Done |
 | 9 | Cross-Platform Build Scripts | ✅ Done |
 | 10 | Snapdragon Optimization | ⏳ In Progress |
 | 11 | System Audio & Realtime | ⏳ In Progress |

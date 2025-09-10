@@ -13,35 +13,43 @@ class PoseRequest(BaseModel):
 @router.post("/generate_pose")
 async def generate_pose(request: PoseRequest):
     """
-    Generate pose data from text using the translate project's API
+    Generate pose data from text (mock implementation)
     """
     try:
-        headers = {
-            "Content-Type": "application/json"
-        }
-        payload = {
-            'text': request.text,
-            'spoken': request.spoken_language,
-            'signed': request.signed_language
-        }
-        
-        # Make the API call - it returns binary pose data directly
-        response = requests.post(config.POSE_API_URL, json=payload, headers=headers)
-        response.raise_for_status()
-        
-        # The API returns binary pose data directly
-        pose_data = response.content
-        
-        # For now, we'll return the binary data as base64 encoded
+        # Mock pose generation - return a placeholder
         import base64
-        pose_data_b64 = base64.b64encode(pose_data).decode('utf-8')
+        import json
+        
+        # Create a simple mock pose data
+        mock_pose_data = {
+            "text": request.text,
+            "spoken_language": request.spoken_language,
+            "signed_language": request.signed_language,
+            "poses": [
+                {
+                    "frame": 0,
+                    "keypoints": [
+                        {"x": 0.5, "y": 0.5, "z": 0.0, "confidence": 1.0},
+                        {"x": 0.4, "y": 0.4, "z": 0.0, "confidence": 1.0},
+                        {"x": 0.6, "y": 0.6, "z": 0.0, "confidence": 1.0}
+                    ]
+                }
+            ],
+            "duration": 2.0,
+            "fps": 30
+        }
+        
+        # Encode as base64
+        pose_data_b64 = base64.b64encode(json.dumps(mock_pose_data).encode('utf-8')).decode('utf-8')
         
         return {
+            "pose_file": f"pose_{request.text.replace(' ', '_')}.json",
             "pose_data": pose_data_b64,
-            "data_format": "binary_base64"
+            "text": request.text,
+            "spoken_language": request.spoken_language,
+            "signed_language": request.signed_language,
+            "status": "mock_generated"
         }
         
-    except requests.RequestException as e:
-        raise HTTPException(status_code=503, detail=f"Pose generation failed: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Pose generation error: {str(e)}")

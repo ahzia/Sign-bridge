@@ -1,29 +1,78 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SignWritingRenderer from './SignWritingRenderer';
+import SignWritingService from '../services/SignWritingService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SignWritingSectionProps {
   signWriting: string[];
   isGeneratingSigns: boolean;
 }
 
-const SignWritingSection: React.FC<SignWritingSectionProps> = ({ signWriting, isGeneratingSigns }) => (
+const SignWritingSection: React.FC<SignWritingSectionProps> = ({ signWriting, isGeneratingSigns }) => {
+  const [isExporting, setIsExporting] = useState(false);
+  const { theme } = useTheme();
+
+  const handleExportSvg = async () => {
+    if (signWriting.length === 0) return;
+    
+    setIsExporting(true);
+    try {
+      const lineColor = theme === 'dark' ? '#ffffff' : '#000000';
+      const fillColor = theme === 'dark' ? '#1f2937' : '#ffffff';
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `signwriting-export-${timestamp}.svg`;
+      
+      await SignWritingService.exportAsSvg(signWriting, filename, lineColor, fillColor);
+    } catch (error) {
+      console.error('Failed to export SVG:', error);
+      alert('Failed to export SignWriting as SVG. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  return (
   <div className="xl:col-span-3 h-full">
     <div className="card h-full flex flex-col bg-white dark:bg-theme-secondary shadow-sm sm:shadow-xl hover:shadow-md sm:hover:shadow-2xl transition-all duration-300 border border-theme-input sm:border-0 rounded-2xl sm:rounded-xl p-2 sm:p-6">
       <div className="pb-3 sm:pb-6 border-b border-theme-primary">
-        <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-3">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-purple-100 rounded-xl sm:rounded-lg flex items-center justify-center">
-            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-            </svg>
+        <div className="flex items-center justify-between mb-1 sm:mb-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-purple-100 rounded-xl sm:rounded-lg flex items-center justify-center">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-theme-primary">
+                SignWriting
+              </h2>
+              <p className="text-xs sm:text-xs text-theme-secondary">
+                Visual notation system
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-theme-primary">
-              SignWriting
-            </h2>
-            <p className="text-xs sm:text-xs text-theme-secondary">
-              Visual notation system
-            </p>
-          </div>
+          {signWriting.length > 0 && (
+            <button
+              onClick={handleExportSvg}
+              disabled={isExporting}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 dark:text-purple-400 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Export as SVG"
+            >
+              {isExporting ? (
+                <>
+                  <div className="w-3 h-3 border border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Exporting...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Export</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
       <div className="flex-1 pt-2 sm:pt-6">
@@ -61,7 +110,7 @@ const SignWritingSection: React.FC<SignWritingSectionProps> = ({ signWriting, is
               <div className="mt-4 px-2">
                 <div className="text-center">
                   <p className="text-xs text-theme-muted">
-                    Hover for details • Scroll for more
+                    Hover for details • Scroll for more • Click Export to save as SVG
                   </p>
                 </div>
               </div>
@@ -71,6 +120,7 @@ const SignWritingSection: React.FC<SignWritingSectionProps> = ({ signWriting, is
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default SignWritingSection; 

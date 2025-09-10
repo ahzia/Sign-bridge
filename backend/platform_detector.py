@@ -78,13 +78,13 @@ class PlatformDetector:
                 "model_paths": {}
             },
             "windows_x64": {
-                "whisper_implementation": "none",
-                "whisper_module": None,
+                "whisper_implementation": "simple",
+                "whisper_module": "api.transcribe_simple",
                 "requirements_file": "requirements_main.txt",
                 "setup_script": None,
                 "python_version": "3.11",
                 "features": {
-                    "speech_to_text": False,
+                    "speech_to_text": True,
                     "text_to_signwriting": True,
                     "text_simplification": True,
                     "pose_generation": True,
@@ -93,8 +93,8 @@ class PlatformDetector:
                 "model_paths": {}
             },
             "windows_x64_npu": {
-                "whisper_implementation": "npu",
-                "whisper_module": "api.transcribe",
+                "whisper_implementation": "simple",
+                "whisper_module": "api.transcribe_simple",
                 "requirements_file": "requirements_main.txt",
                 "setup_script": "setup_backend.ps1",
                 "python_version": "3.11.13",

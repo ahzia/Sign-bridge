@@ -52,6 +52,55 @@ const SignWritingService = {
       console.error('Failed to convert FSW to SVG:', error);
       return '';
     }
+  },
+
+  // Export SignWriting as SVG file
+  async exportAsSvg(fswTokens: string[], filename: string = 'signwriting-export.svg', lineColor: string = 'black', fillColor: string = 'white'): Promise<void> {
+    try {
+      const normalizedTokens = await Promise.all(
+        fswTokens.map(token => this.normalizeFSW(token))
+      );
+      const validTokens = normalizedTokens.filter(Boolean) as string[];
+
+      if (validTokens.length === 0) {
+        throw new Error('No valid SignWriting tokens to export');
+      }
+
+      // Create SVG wrapper
+      const svgWidth = validTokens.length * 100; // Approximate width per token
+      const svgHeight = 120; // Fixed height
+      
+      let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+      
+      // Add each token as a group
+      validTokens.forEach((token, index) => {
+        const x = index * 100;
+        const tokenSvg = this.fswToSvg(token, lineColor, fillColor);
+        // Extract the content inside the <svg> tag
+        const contentMatch = tokenSvg.match(/<svg[^>]*>(.*)<\/svg>/s);
+        if (contentMatch) {
+          svgContent += `<g transform="translate(${x}, 0)">${contentMatch[1]}</g>`;
+        }
+      });
+      
+      svgContent += '</svg>';
+
+      // Create and download the file
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export SignWriting as SVG:', error);
+      throw error;
+    }
   }
 };
 

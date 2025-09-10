@@ -1,17 +1,76 @@
 {
-  "name": "frontend",
+  "name": "signbridge",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Voice-to-Sign Translation Application",
+  "author": "SignBridge Team",
   "type": "module",
+  "main": "electron/main.cjs",
+  "homepage": "./",
+  "build": {
+    "appId": "com.signbridge.app",
+    "productName": "SignBridge",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*",
+      "!node_modules/**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "appx",
+          "arch": ["x64"]
+        },
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "defaultArch": "x64",
+      "icon": "public/icon.ico",
+      "publisherName": "SignBridge Team",
+      "requestedExecutionLevel": "asInvoker",
+      "forceCodeSigning": false
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/icon.png"
+    },
+    "appx": {
+      "identityName": "SignBridgeTeam.SignBridge",
+      "publisher": "CN=SignBridge Team",
+      "displayName": "SignBridge",
+      "publisherDisplayName": "SignBridge Team",
+      "backgroundColor": "#ffffff",
+      "showNameOnTiles": true
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "tauri:dev": "tauri dev",
-    "build": "tauri build",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "vite build && electron-builder",
     "build:frontend": "vite build",
+    "build:appx": "npm run build:frontend && electron-builder --win appx",
+    "build:nsis": "npm run build:frontend && electron-builder --win nsis",
+    "build:all": "npm run build:frontend && electron-builder --win --mac --linux",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node ../scripts/start_app.js",
-    "build:production": "node ../scripts/build_production.js",
+    "start": "electron .",
+    "build:production": "npm run build:frontend && electron-builder --publish=never",
     "serve:production": "cd dist && python3 -m http.server 3000",
     "serve:production:kill": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true",
     "serve:production:restart": "npm run serve:production:kill && npm run serve:production",
@@ -35,6 +94,9 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
@@ -45,6 +107,7 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0",
-    "vite-plugin-static-copy": "^3.1.1"
+    "vite-plugin-static-copy": "^3.1.1",
+    "wait-on": "^8.0.1"
   }
 }

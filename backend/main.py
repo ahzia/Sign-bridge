@@ -93,7 +93,7 @@ def load_platform_features():
     
     # Load SignWriting translation (available on all platforms)
     if is_feature_available("text_to_signwriting"):
-        load_feature_safely("Text-to-SignWriting", "api.signwriting_translation_pytorch")
+        load_feature_safely("Text-to-SignWriting", "api.signwriting_translation_simple")
     else:
         logger.warning("⚠️  Text-to-SignWriting not available")
         loaded_features["Text-to-SignWriting"] = False

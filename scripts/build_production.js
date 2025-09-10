@@ -6,42 +6,58 @@ const fs = require('fs');
 
 // Get the project root directory
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-process.chdir(PROJECT_ROOT);
+const frontendDir = path.join(PROJECT_ROOT, 'frontend');
 
-// Determine the platform and script to use
-const isWindows = process.platform === 'win32';
-const scriptPath = isWindows ? 
-    path.join(__dirname, 'build_production_windows.bat') : 
-    path.join(__dirname, 'build_production.sh');
+console.log('🚀 Building SignBridge for production with Electron...');
 
-// Check if the appropriate script exists
-if (!fs.existsSync(scriptPath)) {
-    console.error(`❌ Script not found: ${scriptPath}`);
-    process.exit(1);
-}
-
-// Execute the appropriate script
-const command = isWindows ? 'cmd.exe' : 'bash';
-const args = isWindows ? ['/c', scriptPath] : [scriptPath];
-
-console.log(`🚀 Building SignBridge for production using: ${command} ${scriptPath}`);
-
-const child = spawn(command, args, {
+// Build the frontend first
+console.log('📦 Building frontend...');
+const buildFrontend = spawn('npm', ['run', 'build:frontend'], {
+    cwd: frontendDir,
     stdio: 'inherit',
     shell: true
 });
 
-child.on('error', (error) => {
-    console.error(`❌ Failed to build: ${error.message}`);
+buildFrontend.on('error', (error) => {
+    console.error(`❌ Failed to build frontend: ${error.message}`);
     process.exit(1);
 });
 
-child.on('exit', (code) => {
-    process.exit(code);
+buildFrontend.on('exit', (code) => {
+    if (code !== 0) {
+        console.error(`❌ Frontend build failed with code ${code}`);
+        process.exit(code);
+    }
+    
+    console.log('✅ Frontend build completed');
+    
+    // Now build the Electron app
+    console.log('📦 Building Electron app...');
+    const buildElectron = spawn('npm', ['run', 'build'], {
+        cwd: frontendDir,
+        stdio: 'inherit',
+        shell: true
+    });
+
+    buildElectron.on('error', (error) => {
+        console.error(`❌ Failed to build Electron app: ${error.message}`);
+        process.exit(1);
+    });
+
+    buildElectron.on('exit', (code) => {
+        if (code !== 0) {
+            console.error(`❌ Electron build failed with code ${code}`);
+            process.exit(code);
+        }
+        
+        console.log('✅ Electron app build completed successfully!');
+        console.log('📁 Output directory: frontend/dist-electron');
+    });
 });
 
 // Handle Ctrl+C
 process.on('SIGINT', () => {
     console.log('\n🛑 Received SIGINT, terminating...');
-    child.kill('SIGINT');
+    buildFrontend.kill('SIGINT');
+    process.exit(1);
 });
