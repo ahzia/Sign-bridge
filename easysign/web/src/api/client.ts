@@ -9,6 +9,25 @@ export async function transcribeAudio(blob: Blob): Promise<string> {
   return data.text ?? '';
 }
 
+export async function transcribeCantoneseAudio(blob: Blob): Promise<string> {
+  const form = new FormData();
+  form.append('audio', blob, 'recording.webm');
+  const res = await fetch(`${API_BASE}/transcribe-cantonese`, { method: 'POST', body: form });
+  if (!res.ok) throw new Error('Cantonese transcription failed');
+  const data = await res.json();
+  return data.text ?? '';
+}
+
+export async function translateToEnglish(text: string): Promise<{ original_text: string; english_text: string }> {
+  const res = await fetch(`${API_BASE}/translate-to-english`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) throw new Error('Translation to English failed');
+  return res.json();
+}
+
 export async function translateSignWriting(text: string): Promise<string[]> {
   const res = await fetch(`${API_BASE}/translate_signwriting`, {
     method: 'POST',
