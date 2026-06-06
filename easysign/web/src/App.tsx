@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import AudioRecorder from './components/AudioRecorder';
+import SignWritingPanel from './components/SignWritingPanel';
 import { transcribeAudio } from './api/client';
 import { useTheme } from './contexts/ThemeContext';
 
@@ -76,7 +77,15 @@ function App() {
           </div>
 
           <div className="xl:col-span-3 h-full">
-            <div className="card h-full flex items-center justify-center text-theme-muted text-sm">SignWriting panel</div>
+            <div className="card h-full flex flex-col">
+              <div className="pb-4 border-b border-theme-primary">
+                <h2 className="text-lg font-bold text-theme-primary">SignWriting</h2>
+                <p className="text-sm text-theme-secondary">Visual notation system</p>
+              </div>
+              <div className="flex-1 pt-4">
+                <SignWritingPanel fswTokens={[]} signSize={24} />
+              </div>
+            </div>
           </div>
           <div className="xl:col-span-4 h-full">
             <div className="card h-full flex items-center justify-center text-theme-muted text-sm">Animation panel</div>
