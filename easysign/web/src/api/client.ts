@@ -8,3 +8,15 @@ export async function transcribeAudio(blob: Blob): Promise<string> {
   const data = await res.json();
   return data.text ?? '';
 }
+
+export async function translateSignWriting(text: string): Promise<string[]> {
+  const res = await fetch(`${API_BASE}/translate_signwriting`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) throw new Error('SignWriting translation failed');
+  const data = await res.json();
+  const raw = data.signwriting ?? '';
+  return raw.trim().split(/\s+/).filter((t: string) => t.length > 0);
+}
