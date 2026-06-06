@@ -203,7 +203,7 @@ function App() {
                 {isGeneratingSigns ? (
                   <div className="flex items-center justify-center h-full"><div className="w-10 h-10 loading-spinner" style={{ borderTopColor: 'var(--purple-500)', borderRightColor: 'var(--purple-500)' }} /></div>
                 ) : (
-                  <SignWritingPanel fswTokens={signWriting} signSize={24} />
+                  <SignWritingPanel fswTokens={signWriting} signSize={48} />
                 )}
               </div>
             </div>

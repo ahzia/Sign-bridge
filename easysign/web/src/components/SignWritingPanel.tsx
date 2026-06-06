@@ -8,25 +8,38 @@ interface SignWritingPanelProps {
   signSize?: number;
 }
 
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 const SignWritingPanel = ({ fswTokens, direction = 'col', className, signSize = 48 }: SignWritingPanelProps) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [normalizedTokens, setNormalizedTokens] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [normalizedTokens, setNormalizedTokens] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    signWriting.loadFonts().then(() => setFontsLoaded(true)).finally(() => setLoading(false));
+    const loadFonts = async () => {
+      try {
+        setLoading(true);
+        await signWriting.loadFonts();
+        setFontsLoaded(true);
+      } catch {
+        setFontsLoaded(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadFonts();
   }, []);
 
   useEffect(() => {
     if (!fontsLoaded) return;
+
     const normalize = async () => {
-      const results: string[] = [];
-      for (const token of fswTokens) {
-        const normalized = await signWriting.normalizeFSW(token);
-        results.push(normalized ?? token);
-      }
-      setNormalizedTokens(results);
+      const results = await Promise.all(
+        fswTokens.map(async (token) => (await signWriting.normalizeFSW(token)) ?? token),
+      );
+      setNormalizedTokens(results.filter(Boolean));
     };
     normalize();
   }, [fswTokens, fontsLoaded]);
@@ -75,7 +88,18 @@ const SignWritingPanel = ({ fswTokens, direction = 'col', className, signSize = 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 loading-spinner" />
+        <div className="text-center">
+          <div className="w-10 h-10 loading-spinner mx-auto mb-3" />
+          <p className="text-sm text-theme-secondary">Loading SignWriting fonts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!fontsLoaded) {
+    return (
+      <div className="flex items-center justify-center h-full text-center">
+        <p className="text-sm text-danger-600">Font loading failed. Please refresh the page.</p>
       </div>
     );
   }
@@ -100,14 +124,15 @@ const SignWritingPanel = ({ fswTokens, direction = 'col', className, signSize = 
       </div>
       <div
         ref={containerRef}
-        className={`flex flex-${direction} items-center ${direction === 'col' ? 'space-y-4' : 'space-x-4'} p-2 ${className ?? ''}`}
+        id="signwriting-container"
+        className={`flex flex-${direction} items-center justify-center min-h-[120px] ${direction === 'col' ? 'space-y-4' : 'space-x-4'} p-2 ${className ?? ''}`}
         style={{ fontSize: `${signSize}px`, color: 'var(--text-primary)' }}
       >
         {normalizedTokens.map((token, index) => (
-          <div key={index} className="group relative">
+          <div key={`${token}-${index}`} className="group relative">
             <div
               dangerouslySetInnerHTML={{
-                __html: `<fsw-sign sign="${token}" style="direction: ltr; display: block; color: var(--text-primary);"></fsw-sign>`,
+                __html: `<fsw-sign sign="${escapeHtml(token)}" style="direction: ltr; display: block; font-size: ${signSize}px; color: var(--text-primary); fill: var(--text-primary); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));"></fsw-sign>`,
               }}
             />
           </div>
