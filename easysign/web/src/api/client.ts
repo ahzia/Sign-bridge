@@ -1,10 +1,19 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000';
 
+async function parseError(res: Response, fallback: string): Promise<never> {
+  try {
+    const data = await res.json();
+    throw new Error(data.detail ?? fallback);
+  } catch {
+    throw new Error(fallback);
+  }
+}
+
 export async function transcribeAudio(blob: Blob): Promise<string> {
   const form = new FormData();
   form.append('audio', blob, 'recording.webm');
   const res = await fetch(`${API_BASE}/transcribe`, { method: 'POST', body: form });
-  if (!res.ok) throw new Error('Transcription failed');
+  if (!res.ok) await parseError(res, 'Transcription failed');
   const data = await res.json();
   return data.text ?? '';
 }
@@ -13,7 +22,7 @@ export async function transcribeCantoneseAudio(blob: Blob): Promise<string> {
   const form = new FormData();
   form.append('audio', blob, 'recording.webm');
   const res = await fetch(`${API_BASE}/transcribe-cantonese`, { method: 'POST', body: form });
-  if (!res.ok) throw new Error('Cantonese transcription failed');
+  if (!res.ok) await parseError(res, 'Cantonese transcription failed');
   const data = await res.json();
   return data.text ?? '';
 }
@@ -24,7 +33,7 @@ export async function translateToEnglish(text: string): Promise<{ original_text:
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
   });
-  if (!res.ok) throw new Error('Translation to English failed');
+  if (!res.ok) await parseError(res, 'Translation to English failed');
   return res.json();
 }
 
@@ -34,7 +43,7 @@ export async function translateSignWriting(text: string): Promise<string[]> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
   });
-  if (!res.ok) throw new Error('SignWriting translation failed');
+  if (!res.ok) await parseError(res, 'SignWriting translation failed');
   const data = await res.json();
   const raw = data.signwriting ?? '';
   return raw.trim().split(/\s+/).filter((t: string) => t.length > 0);

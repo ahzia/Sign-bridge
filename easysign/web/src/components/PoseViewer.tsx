@@ -31,7 +31,7 @@ const PoseViewer = ({ poseFile, poseUrl, onAnimationComplete, isTranslating }: P
 
   useEffect(() => {
     if (poseFile) {
-      const blob = poseFile instanceof Blob ? poseFile : new Blob([poseFile], { type: 'application/octet-stream' });
+      const blob = poseFile instanceof Blob ? poseFile : new Blob([poseFile as BlobPart], { type: 'application/octet-stream' });
       const objectUrl = URL.createObjectURL(blob);
       setUrl(objectUrl);
       setError(null);
@@ -100,7 +100,7 @@ const PoseViewer = ({ poseFile, poseUrl, onAnimationComplete, isTranslating }: P
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
           <button
             onClick={() => {
-              const viewer = containerRef.current?.querySelector('pose-viewer') as HTMLMediaElement & { play: () => void; pause: () => void };
+              const viewer = containerRef.current?.querySelector('pose-viewer') as { play: () => void; pause: () => void } | null;
               if (!viewer) return;
               isPlaying ? viewer.pause() : viewer.play();
             }}
@@ -110,7 +110,7 @@ const PoseViewer = ({ poseFile, poseUrl, onAnimationComplete, isTranslating }: P
           </button>
           <button
             onClick={() => {
-              const viewer = containerRef.current?.querySelector('pose-viewer') as HTMLMediaElement & { currentTime: number; play: () => void };
+              const viewer = containerRef.current?.querySelector('pose-viewer') as { currentTime: number; play: () => void } | null;
               if (!viewer) return;
               viewer.currentTime = 0;
               viewer.play();

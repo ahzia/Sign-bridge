@@ -71,8 +71,8 @@ function App() {
       setSignWriting(tokens);
       setIsGeneratingSigns(false);
       if (tokens.length > 0) setPoseFile(await generatePose(english));
-    } catch {
-      setError('Translation failed. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Translation failed. Please try again.');
       setSignWriting([]);
       setPoseFile(null);
     } finally {
@@ -92,8 +92,8 @@ function App() {
         const result = await translateToEnglish(text);
         setInputText(result.english_text);
         await runSignPipeline(result.english_text, `${result.original_text}\n${result.english_text}`, result.original_text);
-      } catch {
-        setError('Translation failed. Please try again.');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Translation failed. Please try again.');
       }
       return;
     }
@@ -111,8 +111,8 @@ function App() {
       setInputText(text);
       setIsTranscribing(false);
       await runTranslation(text);
-    } catch {
-      setError('Transcription failed. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Transcription failed. Please try again.');
       setIsTranscribing(false);
     }
   };
