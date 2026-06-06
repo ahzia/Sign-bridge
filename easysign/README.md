@@ -40,11 +40,12 @@ Fill in:
 
 ```bash
 cd server
-python -m venv venv
+./setup_env.sh          # uses Python 3.11 (required for PyTorch)
 source venv/bin/activate
-pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
+
+> **Note:** Use Python 3.11. The default `python3` on macOS may be 3.14, which is not compatible with `torch==2.0.1`.
 
 ### 3. Frontend
 
