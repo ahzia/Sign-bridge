@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.pose import router as pose_router
 from api.signwriting import load_signwriting_at_startup, router as signwriting_router
 from api.transcribe import load_whisper_at_startup, router as transcribe_router
 
@@ -32,6 +33,7 @@ app.add_middleware(
 
 app.include_router(transcribe_router)
 app.include_router(signwriting_router)
+app.include_router(pose_router)
 
 
 @app.get("/health")
