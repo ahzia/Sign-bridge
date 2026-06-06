@@ -1,7 +1,21 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="easysign-server")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("easysign-server")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("EasySign server starting")
+    yield
+    logger.info("EasySign server shutting down")
+
+
+app = FastAPI(title="easysign-server", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
