@@ -36,6 +36,8 @@ app.add_middleware(
 app.include_router(transcribe_router)
 app.include_router(signwriting_router)
 app.include_router(pose_router)
+app.include_router(transcribe_cantonese_router)
+app.include_router(translate_router)
 
 
 @app.get("/health")
