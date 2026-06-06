@@ -6,8 +6,9 @@ import ModeToggle, { type AppMode } from './components/ModeToggle';
 import DemoPhrases from './components/DemoPhrases';
 
 const SignCaptureDemo = lazy(() => import('./components/signCapture/SignCaptureDemo'));
+const CareVisit = lazy(() => import('./components/care/CareVisit'));
 
-type AppView = 'translate' | 'sign-capture';
+type AppView = 'translate' | 'sign-capture' | 'care';
 import {
   generatePose,
   transcribeAudio,
@@ -139,6 +140,20 @@ function App() {
     );
   }
 
+  if (appView === 'care') {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="w-12 h-12 loading-spinner" />
+          </div>
+        }
+      >
+        <CareVisit onBack={() => setAppView('translate')} />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen transition-all duration-300">
       <header className="glass border-b border-theme-primary sticky top-0 z-30 backdrop-blur-md">
@@ -155,10 +170,16 @@ function App() {
                 <p className="text-xs sm:text-sm text-theme-secondary font-medium">Speech and text to sign language — made easy</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={() => setAppView('care')}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-100 text-teal-800 hover:bg-teal-200 dark:bg-teal-900/50 dark:text-teal-200 transition-colors"
+              >
+                EasySign Care
+              </button>
               <button
                 onClick={() => setAppView('sign-capture')}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-theme-secondary text-theme-secondary hover:text-theme-primary transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-theme-secondary text-theme-secondary hover:text-theme-primary transition-colors hidden sm:inline-flex"
               >
                 Camera Demo
               </button>
