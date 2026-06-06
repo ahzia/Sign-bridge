@@ -3,6 +3,7 @@ import AudioRecorder from './components/AudioRecorder';
 import SignWritingPanel from './components/SignWritingPanel';
 import PoseViewer from './components/PoseViewer';
 import ModeToggle, { type AppMode } from './components/ModeToggle';
+import DemoPhrases from './components/DemoPhrases';
 import {
   generatePose,
   transcribeAudio,
@@ -82,6 +83,10 @@ function App() {
   };
 
   const runTranslation = async (text: string) => {
+    if (!text.trim()) {
+      setError('Please enter some text before translating.');
+      return;
+    }
     if (mode === 'hongkong') {
       try {
         const result = await translateToEnglish(text);
@@ -174,6 +179,9 @@ function App() {
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder={mode === 'hongkong' ? '輸入廣東話訊息或使用語音錄製...' : 'Type your message here or use voice recording to get started...'}
                   />
+                )}
+                {mode === 'hongkong' && !isTranscribing && (
+                  <DemoPhrases onSelect={(phrase) => { setInputText(phrase); runTranslation(phrase); }} />
                 )}
                 <div className="flex gap-3 mt-4">
                   <button onClick={() => setIsRecording(true)} disabled={isRecording || isTranscribing} className="btn btn-success flex-1">Record Voice</button>
