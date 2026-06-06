@@ -19,7 +19,6 @@ function App() {
   const [inputText, setInputText] = useState('');
   const [transcription, setTranscription] = useState('');
   const [originalText, setOriginalText] = useState('');
-  const [englishText, setEnglishText] = useState('');
   const [signWriting, setSignWriting] = useState<string[]>([]);
   const [poseFile, setPoseFile] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -35,7 +34,6 @@ function App() {
     setPoseFile(null);
     setTranscription('');
     setOriginalText('');
-    setEnglishText('');
   };
 
   useEffect(() => {
@@ -49,21 +47,20 @@ function App() {
     }, 1500);
   }, [inputText, mode]);
 
-  const runSignPipeline = async (english: string, displayTranscript: string, sourceText?: string) => {
+  const runSignPipeline = async (english: string, userFacingText: string) => {
     setIsTranslating(true);
     setIsGeneratingSigns(true);
     setIsGeneratingAnimation(true);
     setError(null);
-    setTranscription(displayTranscript);
     setSignWriting([]);
     setPoseFile(null);
 
-    if (mode === 'hongkong' && sourceText) {
-      setOriginalText(sourceText);
-      setEnglishText(english);
+    if (mode === 'hongkong') {
+      setOriginalText(userFacingText);
+      setTranscription('');
     } else {
       setOriginalText('');
-      setEnglishText('');
+      setTranscription(userFacingText);
     }
 
     try {
@@ -90,8 +87,7 @@ function App() {
     if (mode === 'hongkong') {
       try {
         const result = await translateToEnglish(text);
-        setInputText(result.english_text);
-        await runSignPipeline(result.english_text, `${result.original_text}\n${result.english_text}`, result.original_text);
+        await runSignPipeline(result.english_text, result.original_text);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Translation failed. Please try again.');
       }
@@ -230,12 +226,11 @@ function App() {
 
         {error && <div className="mt-6 bg-danger-50 border border-danger-200 rounded-lg p-4 text-danger-800">{error}</div>}
 
-        {mode === 'hongkong' && originalText && englishText && (
+        {mode === 'hongkong' && originalText && (
           <div className="mt-6">
             <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
-              <p className="text-primary-800 font-medium mb-2">Transcript</p>
-              <p className="text-primary-700 text-sm mb-1">{originalText}</p>
-              <p className="text-primary-600 text-sm">{englishText}</p>
+              <p className="text-primary-800 font-medium mb-1">Transcript</p>
+              <p className="text-primary-700 text-sm">{originalText}</p>
             </div>
           </div>
         )}

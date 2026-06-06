@@ -21,7 +21,7 @@ const ModeToggle = ({ mode, onChange }: ModeToggleProps) => (
         mode === 'hongkong' ? 'bg-primary-500 text-white' : 'text-theme-secondary hover:text-theme-primary'
       }`}
     >
-      Hong Kong
+      Cantonese
     </button>
   </div>
 );
