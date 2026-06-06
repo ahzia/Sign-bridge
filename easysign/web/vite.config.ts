@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ['@sutton-signwriting/sgnw-components', 'fsw-sign'],
+    exclude: ['@sutton-signwriting/sgnw-components', 'fsw-sign', '@mediapipe/tasks-vision'],
+    include: ['@tensorflow/tfjs', 'three', '@mediapipe/tasks-vision'],
   },
 })

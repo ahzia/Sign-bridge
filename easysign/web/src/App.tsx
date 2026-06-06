@@ -1,9 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import AudioRecorder from './components/AudioRecorder';
 import SignWritingPanel from './components/SignWritingPanel';
 import PoseViewer from './components/PoseViewer';
 import ModeToggle, { type AppMode } from './components/ModeToggle';
 import DemoPhrases from './components/DemoPhrases';
+
+const SignCaptureDemo = lazy(() => import('./components/signCapture/SignCaptureDemo'));
+
+type AppView = 'translate' | 'sign-capture';
 import {
   generatePose,
   transcribeAudio,
@@ -15,6 +19,7 @@ import { useTheme } from './contexts/ThemeContext';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
+  const [appView, setAppView] = useState<AppView>('translate');
   const [mode, setMode] = useState<AppMode>('english');
   const [inputText, setInputText] = useState('');
   const [transcription, setTranscription] = useState('');
@@ -120,6 +125,20 @@ function App() {
     setError(null);
   };
 
+  if (appView === 'sign-capture') {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="w-12 h-12 loading-spinner" />
+          </div>
+        }
+      >
+        <SignCaptureDemo onBack={() => setAppView('translate')} />
+      </Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen transition-all duration-300">
       <header className="glass border-b border-theme-primary sticky top-0 z-30 backdrop-blur-md">
@@ -137,6 +156,12 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setAppView('sign-capture')}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-theme-secondary text-theme-secondary hover:text-theme-primary transition-colors"
+              >
+                Camera Demo
+              </button>
               <ModeToggle mode={mode} onChange={handleModeChange} />
               <button onClick={toggleTheme} className="p-3 rounded-xl bg-theme-secondary hover:bg-theme-tertiary transition-all duration-200 shadow-sm" aria-label="Toggle theme">
                 {theme === 'light' ? (

@@ -2,7 +2,9 @@
 
 Speech and text to sign language — made easy.
 
-EasySign converts spoken or typed language into SignWriting notation and sign language animation. It supports **English** and **Hong Kong** (Cantonese) input modes.
+**Repository:** [github.com/ahzia/EasySign](https://github.com/ahzia/EasySign)
+
+EasySign converts spoken or typed language into SignWriting notation and sign language animation. It supports **English** and **Cantonese** input modes.
 
 ## Features
 
@@ -12,6 +14,7 @@ EasySign converts spoken or typed language into SignWriting notation and sign la
 - Text to SignWriting notation
 - Sign language skeleton animation
 - Light / dark theme
+- **Camera demo** (experimental): handshape → English for isolated signs
 
 ## Project structure
 
