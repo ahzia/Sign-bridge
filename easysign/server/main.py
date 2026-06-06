@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.pose import router as pose_router
 from api.signwriting import load_signwriting_at_startup, router as signwriting_router
 from api.transcribe import load_whisper_at_startup, router as transcribe_router
+from api.transcribe_cantonese import router as transcribe_cantonese_router
+from api.translate import router as translate_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("easysign-server")
