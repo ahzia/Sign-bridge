@@ -56,12 +56,12 @@ const PatientSignOutput = ({
 
       <div
         className={`flex-1 min-h-0 ${
-          isKiosk ? 'flex flex-col gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'
+          isKiosk ? 'flex flex-col' : 'grid grid-cols-1 md:grid-cols-2 gap-4'
         }`}
       >
-        <div className={`card p-3 flex flex-col ${isKiosk ? 'min-h-[280px] sm:min-h-[360px] order-1' : 'min-h-[180px]'}`}>
-          <h3 className="text-sm font-bold text-theme-primary mb-2">Sign animation</h3>
-          <div className={`flex-1 ${isKiosk ? 'min-h-[220px] sm:min-h-[300px]' : 'min-h-[140px]'}`}>
+        <div className={`card p-3 flex flex-col ${isKiosk ? 'flex-1 min-h-[320px] sm:min-h-[400px]' : 'min-h-[180px]'}`}>
+          {!isKiosk && <h3 className="text-sm font-bold text-theme-primary mb-2">Sign animation</h3>}
+          <div className={`flex-1 ${isKiosk ? 'min-h-[280px] sm:min-h-[360px]' : 'min-h-[140px]'}`}>
             {loading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="w-8 h-8 loading-spinner" />
@@ -71,18 +71,20 @@ const PatientSignOutput = ({
             )}
           </div>
         </div>
-        <div className={`card p-3 flex flex-col ${isKiosk ? 'min-h-[120px] order-2' : 'min-h-[180px]'}`}>
-          <h3 className="text-sm font-bold text-theme-primary mb-2">SignWriting</h3>
-          <div className="flex-1 overflow-y-auto">
-            {loading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="w-8 h-8 loading-spinner" />
-              </div>
-            ) : (
-              <SignWritingPanel fswTokens={signWriting} signSize={isKiosk ? 48 : 40} />
-            )}
+        {!isKiosk && (
+          <div className="card p-3 flex flex-col min-h-[180px]">
+            <h3 className="text-sm font-bold text-theme-primary mb-2">SignWriting</h3>
+            <div className="flex-1 overflow-y-auto">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="w-8 h-8 loading-spinner" />
+                </div>
+              ) : (
+                <SignWritingPanel fswTokens={signWriting} signSize={40} />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

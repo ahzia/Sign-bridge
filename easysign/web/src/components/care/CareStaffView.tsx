@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import PhraseBoard from './PhraseBoard';
+import StaffCustomMessage from './StaffCustomMessage';
 import VisitRoomBar from './VisitRoomBar';
+import GestureAlertOverlay from './GestureAlertOverlay';
 import type { ClinicalPhrase } from '../../data/clinicalPhrases';
 import type { HospitalGesture } from '../../data/hospitalGestures';
-import { TRIAGE_STYLES } from '../../data/hospitalGestures';
 import { useNavigate } from '../../hooks/usePathname';
 import { useVisitRoom } from '../../hooks/useVisitRoom';
-import { runEnglishSignPipeline, speakText } from '../../services/runSignPipeline';
+import { runEnglishSignPipeline } from '../../services/runSignPipeline';
 import {
   blobToBase64,
   generateRoomId,
@@ -63,38 +64,47 @@ const CareStaffView = () => {
 
   const { publish, patientOnline } = useVisitRoom(roomId, 'staff', onVisitMessage);
 
-  const handlePhraseSelect = async (phrase: ClinicalPhrase) => {
-    setActivePhraseId(phrase.id);
+  const sendToPatient = async (english: string, cantonese: string, phraseId: string) => {
     setError(null);
     setLoading(true);
-    speakText(phrase.english);
 
     publish({
       type: 'phrase_loading',
-      phraseId: phrase.id,
-      english: phrase.english,
-      cantonese: phrase.cantonese,
+      phraseId,
+      english,
+      cantonese,
     });
 
     try {
-      const result = await runEnglishSignPipeline(phrase.english);
+      const result = await runEnglishSignPipeline(english);
       const poseBase64 = result.poseFile ? await blobToBase64(result.poseFile) : null;
 
       publish({
         type: 'phrase_output',
-        phraseId: phrase.id,
-        english: phrase.english,
-        cantonese: phrase.cantonese,
+        phraseId,
+        english,
+        cantonese,
         signWriting: result.signWriting,
         poseBase64,
       });
 
-      addLog('staff', phrase.english);
+      addLog('staff', english);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate signs');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePhraseSelect = async (phrase: ClinicalPhrase) => {
+    setActivePhraseId(phrase.id);
+    await sendToPatient(phrase.english, phrase.cantonese, phrase.id);
+  };
+
+  const handleCustomMessage = async (english: string) => {
+    setActivePhraseId(null);
+    const id = `custom-${Date.now()}`;
+    await sendToPatient(english, '', id);
   };
 
   const dismissTriage = () => {
@@ -104,6 +114,10 @@ const CareStaffView = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-teal-50/50 to-transparent dark:from-teal-950/20">
+      {triageAlert && (
+        <GestureAlertOverlay gesture={triageAlert} audience="staff" onDismiss={dismissTriage} />
+      )}
+
       <header className="glass border-b border-teal-200 dark:border-teal-900 sticky top-0 z-30 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between gap-4">
@@ -118,7 +132,7 @@ const CareStaffView = () => {
                   Staff console
                 </h1>
                 <p className="text-xs text-theme-secondary hidden sm:block">
-                  Phrase board · visit log · triage alerts
+                  Phrases · custom voice · visit log
                 </p>
               </div>
             </div>
@@ -129,22 +143,6 @@ const CareStaffView = () => {
         </div>
       </header>
 
-      {triageAlert && (
-        <div className={`${TRIAGE_STYLES[triageAlert.priority].banner} px-4 py-3`}>
-          <div className="max-w-7xl mx-auto flex items-start justify-between gap-4">
-            <div>
-              <p className="font-bold text-sm">
-                {TRIAGE_STYLES[triageAlert.priority].label} priority — {triageAlert.label}
-              </p>
-              <p className="text-sm opacity-95 mt-0.5">{triageAlert.staffMessage}</p>
-            </div>
-            <button onClick={dismissTriage} className="text-white/90 hover:text-white text-xs underline shrink-0">
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
-
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 space-y-4">
         <VisitRoomBar roomId={roomId} patientOnline={patientOnline} role="staff" />
 
@@ -153,26 +151,34 @@ const CareStaffView = () => {
         )}
 
         {loading && (
-          <div className="text-xs text-teal-700 dark:text-teal-300 flex items-center gap-2">
-            <div className="w-4 h-4 loading-spinner" />
+          <div className="rounded-lg bg-teal-100 dark:bg-teal-900/40 border border-teal-200 dark:border-teal-800 px-4 py-3 text-sm text-teal-800 dark:text-teal-200 flex items-center gap-3">
+            <div className="w-5 h-5 loading-spinner shrink-0" />
             Generating signs for patient screen…
           </div>
         )}
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-          <div className="xl:col-span-8 card p-4 flex flex-col min-h-[420px]">
-            <h2 className="text-lg font-bold text-theme-primary mb-1">Phrase board</h2>
-            <p className="text-xs text-theme-secondary mb-3">
-              Tap a phrase — patient screen updates in real time
-            </p>
-            <PhraseBoard onSelect={handlePhraseSelect} activeId={activePhraseId} compact />
+          <div className="xl:col-span-8 flex flex-col gap-4 min-h-[480px]">
+            <StaffCustomMessage
+              onSend={handleCustomMessage}
+              disabled={loading}
+              loading={loading}
+            />
+
+            <div className="card p-4 flex flex-col flex-1 min-h-[360px]">
+              <h2 className="text-lg font-bold text-theme-primary mb-1">Phrase board</h2>
+              <p className="text-xs text-theme-secondary mb-3">
+                Or tap a preset phrase — patient screen updates in real time
+              </p>
+              <PhraseBoard onSelect={handlePhraseSelect} activeId={activePhraseId} compact />
+            </div>
           </div>
 
-          <div className="xl:col-span-4 card p-4 flex flex-col min-h-[280px] max-h-[560px]">
+          <div className="xl:col-span-4 card p-4 flex flex-col min-h-[280px] max-h-[720px]">
             <h2 className="text-sm font-bold text-theme-primary mb-2">Visit log</h2>
             <div className="flex-1 overflow-y-auto space-y-2 text-xs">
               {visitLog.length === 0 ? (
-                <p className="text-theme-muted">Staff phrases and patient gestures appear here</p>
+                <p className="text-theme-muted">Staff messages and patient gestures appear here</p>
               ) : (
                 visitLog.map((entry) => (
                   <div
@@ -180,7 +186,9 @@ const CareStaffView = () => {
                     className={`rounded-lg px-2 py-1.5 border ${
                       entry.side === 'patient' && entry.priority === 'critical'
                         ? 'border-red-300 bg-red-50 dark:bg-red-950/30'
-                        : 'border-theme-primary bg-theme-secondary/20'
+                        : entry.side === 'patient' && entry.priority === 'high'
+                          ? 'border-amber-300 bg-amber-50 dark:bg-amber-950/30'
+                          : 'border-theme-primary bg-theme-secondary/20'
                     }`}
                   >
                     <span className="text-theme-muted">{entry.time}</span>

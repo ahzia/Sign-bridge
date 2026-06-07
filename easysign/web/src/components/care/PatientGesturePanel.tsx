@@ -18,12 +18,14 @@ export interface PatientGestureEvent {
 interface PatientGesturePanelProps {
   onGesture: (event: PatientGestureEvent) => void;
   compact?: boolean;
+  /** Hide labels below camera — use when a separate overlay shows the gesture */
+  cameraOnly?: boolean;
 }
 
 const STABLE_WINDOW = 16;
 const STABLE_THRESHOLD = 10;
 
-const PatientGesturePanel = ({ onGesture, compact = false }: PatientGesturePanelProps) => {
+const PatientGesturePanel = ({ onGesture, compact = false, cameraOnly = false }: PatientGesturePanelProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cameraRef = useRef<HandsCamera | null>(null);
@@ -103,27 +105,36 @@ const PatientGesturePanel = ({ onGesture, compact = false }: PatientGesturePanel
   const priority: TriagePriority | null = current?.priority ?? null;
 
   return (
-    <div className="flex flex-col h-full gap-3">
-      <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
+    <div className={`flex flex-col h-full ${cameraOnly ? '' : 'gap-3'}`}>
+      <div className={`relative overflow-hidden bg-black ${cameraOnly ? 'h-full' : 'rounded-xl aspect-video'}`}>
         <video ref={videoRef} className="hidden" playsInline autoPlay muted />
-        <canvas ref={canvasRef} className="w-full h-full object-contain" />
+        <canvas ref={canvasRef} className="w-full h-full object-cover" />
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60">
             <div className="w-8 h-8 loading-spinner" />
           </div>
         )}
-        {priority && (priority === 'critical' || priority === 'high') && (
+        {!cameraOnly && priority && (priority === 'critical' || priority === 'high') && (
           <div
             className={`absolute top-0 left-0 right-0 px-3 py-1.5 text-xs font-bold text-center ${TRIAGE_STYLES[priority].banner}`}
           >
             {TRIAGE_STYLES[priority].label}: {current?.label}
           </div>
         )}
+        {cameraOnly && !loading && !current && (
+          <div className="absolute bottom-2 left-2 right-2 text-center">
+            <p className="text-[10px] text-white/70 bg-black/50 rounded-full px-3 py-1 inline-block">
+              {rawGesture && rawGesture !== 'None'
+                ? `Hold ${rawGesture.replace(/_/g, ' ')} steady…`
+                : 'Show your hand to the camera'}
+            </p>
+          </div>
+        )}
       </div>
 
-      {error && <p className="text-xs text-danger-600">{error}</p>}
+      {error && !cameraOnly && <p className="text-xs text-danger-600">{error}</p>}
 
-      {current ? (
+      {!cameraOnly && (current ? (
         <div className={`rounded-lg border px-3 py-2 ${TRIAGE_STYLES[current.priority].badge}`}>
           <p className="font-semibold text-sm">{current.label}</p>
           <p className="text-xs mt-0.5 opacity-90">{current.staffMessage}</p>
@@ -137,9 +148,9 @@ const PatientGesturePanel = ({ onGesture, compact = false }: PatientGesturePanel
             ? `Detecting ${rawGesture.replace(/_/g, ' ')}… hold steady`
             : 'Patient: show a hand gesture to the camera'}
         </p>
-      )}
+      ))}
 
-      {!compact && (
+      {!compact && !cameraOnly && (
         <div className="text-[10px] text-theme-muted">
           <p className="font-semibold mb-1">Hospital gesture pack</p>
           <ul className="space-y-0.5">
