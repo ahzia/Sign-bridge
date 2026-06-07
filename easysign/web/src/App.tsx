@@ -4,11 +4,7 @@ import SignWritingPanel from './components/SignWritingPanel';
 import PoseViewer from './components/PoseViewer';
 import ModeToggle, { type AppMode } from './components/ModeToggle';
 import DemoPhrases from './components/DemoPhrases';
-
-const SignCaptureDemo = lazy(() => import('./components/signCapture/SignCaptureDemo'));
-const CareVisit = lazy(() => import('./components/care/CareVisit'));
-
-type AppView = 'translate' | 'sign-capture' | 'care';
+import { useNavigate, usePathname } from './hooks/usePathname';
 import {
   generatePose,
   transcribeAudio,
@@ -18,7 +14,14 @@ import {
 } from './api/client';
 import { useTheme } from './contexts/ThemeContext';
 
+const SignCaptureDemo = lazy(() => import('./components/signCapture/SignCaptureDemo'));
+const CareShell = lazy(() => import('./components/care/CareShell'));
+
+type AppView = 'translate' | 'sign-capture';
+
 function App() {
+  const pathname = usePathname();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [appView, setAppView] = useState<AppView>('translate');
   const [mode, setMode] = useState<AppMode>('english');
@@ -140,7 +143,7 @@ function App() {
     );
   }
 
-  if (appView === 'care') {
+  if (pathname.startsWith('/care')) {
     return (
       <Suspense
         fallback={
@@ -149,7 +152,7 @@ function App() {
           </div>
         }
       >
-        <CareVisit onBack={() => setAppView('translate')} />
+        <CareShell />
       </Suspense>
     );
   }
@@ -172,7 +175,7 @@ function App() {
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <button
-                onClick={() => setAppView('care')}
+                onClick={() => navigate('/care')}
                 className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-100 text-teal-800 hover:bg-teal-200 dark:bg-teal-900/50 dark:text-teal-200 transition-colors"
               >
                 EasySign Care

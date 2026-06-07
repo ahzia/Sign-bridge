@@ -1,28 +1,17 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import PhraseBoard from './PhraseBoard';
 import PatientSignOutput from './PatientSignOutput';
-import PatientGesturePanel, { type PatientGestureEvent } from './PatientGesturePanel';
 import type { ClinicalPhrase } from '../../data/clinicalPhrases';
-import type { HospitalGesture } from '../../data/hospitalGestures';
-import { TRIAGE_STYLES } from '../../data/hospitalGestures';
+import { useNavigate } from '../../hooks/usePathname';
+import { generateRoomId, patientVisitUrl } from '../../services/visitSync';
 import { runEnglishSignPipeline, speakText } from '../../services/runSignPipeline';
 
-interface CareVisitProps {
-  onBack: () => void;
-}
+type CareTab = 'phrases' | 'live';
 
-type CareTab = 'phrases' | 'visit';
-
-interface VisitLogEntry {
-  id: string;
-  time: string;
-  side: 'staff' | 'patient';
-  text: string;
-  priority?: string;
-}
-
-const CareVisit = ({ onBack }: CareVisitProps) => {
+const CareVisit = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<CareTab>('phrases');
+  const [liveRoomId, setLiveRoomId] = useState(() => generateRoomId());
   const [activePhraseId, setActivePhraseId] = useState<string | null>(null);
   const [english, setEnglish] = useState('');
   const [cantonese, setCantonese] = useState('');
@@ -30,21 +19,7 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
   const [poseFile, setPoseFile] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [triageAlert, setTriageAlert] = useState<HospitalGesture | null>(null);
-  const [visitLog, setVisitLog] = useState<VisitLogEntry[]>([]);
-
-  const addLog = (side: 'staff' | 'patient', text: string, priority?: string) => {
-    setVisitLog((prev) => [
-      {
-        id: `${Date.now()}-${prev.length}`,
-        time: new Date().toLocaleTimeString(),
-        side,
-        text,
-        priority,
-      },
-      ...prev.slice(0, 19),
-    ]);
-  };
+  const [copied, setCopied] = useState(false);
 
   const handlePhraseSelect = async (phrase: ClinicalPhrase) => {
     setActivePhraseId(phrase.id);
@@ -58,7 +33,6 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
       setCantonese(phrase.cantonese);
       setSignWriting(result.signWriting);
       setPoseFile(result.poseFile);
-      addLog('staff', phrase.english);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate signs');
     } finally {
@@ -66,25 +40,25 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
     }
   };
 
-  const handlePatientGesture = useCallback((event: PatientGestureEvent) => {
-    if (event.gesture && event.stability >= 0.5) {
-      setTriageAlert(event.gesture);
-      setVisitLog((prev) => [
-        {
-          id: `${Date.now()}-p`,
-          time: new Date().toLocaleTimeString(),
-          side: 'patient',
-          text: event.gesture!.label,
-          priority: event.gesture!.priority,
-        },
-        ...prev.slice(0, 19),
-      ]);
-    } else if (!event.rawGesture || event.rawGesture === 'None') {
-      setTriageAlert(null);
-    }
-  }, []);
+  const startLiveVisit = () => {
+    const room = generateRoomId();
+    setLiveRoomId(room);
+    navigate(`/care/staff?room=${room}`);
+  };
 
-  const dismissTriage = () => setTriageAlert(null);
+  const openPatientWindow = () => {
+    window.open(patientVisitUrl(liveRoomId), 'easysign-patient', 'noopener,noreferrer');
+  };
+
+  const copyPatientLink = async () => {
+    try {
+      await navigator.clipboard.writeText(patientVisitUrl(liveRoomId));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt('Copy patient screen link:', patientVisitUrl(liveRoomId));
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-teal-50/50 to-transparent dark:from-teal-950/20">
@@ -106,7 +80,7 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
                 </p>
               </div>
             </div>
-            <button onClick={onBack} className="btn btn-secondary text-sm shrink-0">
+            <button onClick={() => navigate('/')} className="btn btn-secondary text-sm shrink-0">
               ← Main app
             </button>
           </div>
@@ -123,37 +97,18 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
               Phrase board
             </button>
             <button
-              onClick={() => setTab('visit')}
+              onClick={() => setTab('live')}
               className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                tab === 'visit'
+                tab === 'live'
                   ? 'bg-teal-600 text-white shadow'
                   : 'bg-theme-secondary text-theme-secondary hover:text-theme-primary'
               }`}
             >
-              Live visit
+              Dual-screen visit
             </button>
           </div>
         </div>
       </header>
-
-      {triageAlert && tab === 'visit' && (
-        <div className={`${TRIAGE_STYLES[triageAlert.priority].banner} px-4 py-3`}>
-          <div className="max-w-7xl mx-auto flex items-start justify-between gap-4">
-            <div>
-              <p className="font-bold text-sm">
-                {TRIAGE_STYLES[triageAlert.priority].label} priority — {triageAlert.label}
-              </p>
-              <p className="text-sm opacity-95 mt-0.5">{triageAlert.staffMessage}</p>
-            </div>
-            <button
-              onClick={dismissTriage}
-              className="text-white/90 hover:text-white text-xs underline shrink-0"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
-      )}
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
         {error && (
@@ -170,7 +125,7 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
               <PhraseBoard onSelect={handlePhraseSelect} activeId={activePhraseId} />
             </div>
             <div className="card p-4 flex flex-col">
-              <h2 className="text-lg font-bold text-theme-primary mb-3">Patient view</h2>
+              <h2 className="text-lg font-bold text-theme-primary mb-3">Patient preview</h2>
               <PatientSignOutput
                 english={english}
                 cantonese={cantonese}
@@ -181,54 +136,45 @@ const CareVisit = ({ onBack }: CareVisitProps) => {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-              <div className="xl:col-span-5 card p-4 flex flex-col min-h-[320px]">
-                <h2 className="text-lg font-bold text-theme-primary mb-1">Staff</h2>
-                <p className="text-xs text-theme-secondary mb-3">Select what to say to the patient</p>
-                <PhraseBoard onSelect={handlePhraseSelect} activeId={activePhraseId} compact />
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="card p-6 space-y-4">
+              <div>
+                <h2 className="text-xl font-bold text-theme-primary">Dual-screen live visit</h2>
+                <p className="text-sm text-theme-secondary mt-1">
+                  Use two browser windows side by side on one laptop, or put the patient screen on a second monitor.
+                  Both stay in sync in real time.
+                </p>
               </div>
-              <div className="xl:col-span-4 card p-4 flex flex-col min-h-[320px]">
-                <h2 className="text-lg font-bold text-theme-primary mb-1">Patient</h2>
-                <p className="text-xs text-theme-secondary mb-3">Camera + hospital gesture pack</p>
-                <PatientGesturePanel onGesture={handlePatientGesture} compact />
+
+              <div className="rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/30 p-4">
+                <p className="text-xs font-semibold uppercase text-teal-700 dark:text-teal-300">Visit room</p>
+                <p className="text-2xl font-bold tracking-widest text-theme-primary mt-1">{liveRoomId}</p>
               </div>
-              <div className="xl:col-span-3 card p-4 flex flex-col min-h-[200px] max-h-[480px]">
-                <h2 className="text-sm font-bold text-theme-primary mb-2">Visit log</h2>
-                <div className="flex-1 overflow-y-auto space-y-2 text-xs">
-                  {visitLog.length === 0 ? (
-                    <p className="text-theme-muted">Staff phrases and patient gestures appear here</p>
-                  ) : (
-                    visitLog.map((entry) => (
-                      <div
-                        key={entry.id}
-                        className={`rounded-lg px-2 py-1.5 border ${
-                          entry.side === 'patient' && entry.priority === 'critical'
-                            ? 'border-red-300 bg-red-50 dark:bg-red-950/30'
-                            : 'border-theme-primary bg-theme-secondary/20'
-                        }`}
-                      >
-                        <span className="text-theme-muted">{entry.time}</span>
-                        <span className="mx-1">·</span>
-                        <span className="font-medium">{entry.side === 'staff' ? 'Staff' : 'Patient'}</span>
-                        <p className="text-theme-primary mt-0.5">{entry.text}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
+
+              <div className="space-y-2">
+                <button onClick={startLiveVisit} className="btn btn-primary w-full bg-teal-600 hover:bg-teal-700">
+                  Open staff console
+                </button>
+                <button onClick={openPatientWindow} className="btn btn-secondary w-full">
+                  Open patient screen (new window)
+                </button>
+                <button onClick={copyPatientLink} className="btn btn-secondary w-full text-sm">
+                  {copied ? 'Patient link copied!' : 'Copy patient screen link'}
+                </button>
               </div>
             </div>
 
-            <div className="card p-4">
-              <h2 className="text-lg font-bold text-theme-primary mb-3">Sign output (patient screen)</h2>
-              <PatientSignOutput
-                english={english}
-                cantonese={cantonese}
-                signWriting={signWriting}
-                poseFile={poseFile}
-                loading={loading}
-                emptyMessage="Select a phrase on the left to show signs to the patient"
-              />
+            <div className="card p-5 text-sm text-theme-secondary space-y-3">
+              <p className="font-semibold text-theme-primary">Recording / demo setup</p>
+              <ol className="list-decimal list-inside space-y-2">
+                <li>Click <strong>Open staff console</strong> — use this on the left half of your screen.</li>
+                <li>Click <strong>Open patient screen</strong> — snap it to the right (or drag to a second monitor).</li>
+                <li>On staff: tap a phrase. Patient screen updates with signs and speech.</li>
+                <li>On patient: use gestures (closed fist = emergency) — staff sees triage alerts.</li>
+              </ol>
+              <p className="text-xs text-theme-muted pt-1">
+                Tip: use two separate windows (not two tabs in one window) for easier split-screen recording.
+              </p>
             </div>
           </div>
         )}
