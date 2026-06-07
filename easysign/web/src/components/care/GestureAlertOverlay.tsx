@@ -74,7 +74,10 @@ const GestureAlertOverlay = ({ gesture, audience, onDismiss }: GestureAlertOverl
         </div>
 
         {onDismiss && audience === 'staff' && (
-          <div className="bg-white dark:bg-slate-900 px-6 py-4 flex justify-center border-t border-theme-primary">
+          <div className="bg-white dark:bg-slate-900 px-6 py-4 flex flex-col items-center gap-2 border-t border-theme-primary">
+            <p className="text-xs text-theme-muted text-center">
+              Stays on screen until you acknowledge (up to 3 minutes)
+            </p>
             <button
               onClick={onDismiss}
               className="btn btn-secondary text-sm px-8"

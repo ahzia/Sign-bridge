@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { GESTURE_ALERT_DURATION_MS } from './careConstants';
 import PatientSignOutput from './PatientSignOutput';
 import PatientGesturePanel, { type PatientGestureEvent } from './PatientGesturePanel';
 import GestureAlertOverlay from './GestureAlertOverlay';
@@ -24,6 +25,16 @@ const CarePatientKiosk = () => {
   const [poseFile, setPoseFile] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeGesture, setActiveGesture] = useState<HospitalGesture | null>(null);
+  const gestureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearGestureTimer = () => {
+    if (gestureTimerRef.current) {
+      clearTimeout(gestureTimerRef.current);
+      gestureTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => () => clearGestureTimer(), []);
 
   const onVisitMessage = useCallback((message: VisitMessage) => {
     if (message.type === 'phrase_loading') {
@@ -46,6 +57,7 @@ const CarePatientKiosk = () => {
     }
 
     if (message.type === 'triage_dismiss') {
+      clearGestureTimer();
       setActiveGesture(null);
     }
   }, []);
@@ -58,19 +70,13 @@ const CarePatientKiosk = () => {
 
       if (event.gesture && event.stability >= 0.5) {
         setActiveGesture(event.gesture);
+        clearGestureTimer();
+        gestureTimerRef.current = setTimeout(() => setActiveGesture(null), GESTURE_ALERT_DURATION_MS);
         publish({
           type: 'patient_gesture',
           gesture: event.gesture,
           rawGesture: event.rawGesture,
           stability: event.stability,
-        });
-      } else if (!event.rawGesture || event.rawGesture === 'None') {
-        setActiveGesture(null);
-        publish({
-          type: 'patient_gesture',
-          gesture: null,
-          rawGesture: null,
-          stability: 0,
         });
       }
     },

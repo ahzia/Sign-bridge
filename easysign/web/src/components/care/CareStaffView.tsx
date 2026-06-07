@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { GESTURE_ALERT_DURATION_MS } from './careConstants';
 import PhraseBoard from './PhraseBoard';
 import StaffCustomMessage from './StaffCustomMessage';
 import VisitRoomBar from './VisitRoomBar';
@@ -31,6 +32,17 @@ const CareStaffView = () => {
   const [error, setError] = useState<string | null>(null);
   const [triageAlert, setTriageAlert] = useState<HospitalGesture | null>(null);
   const [visitLog, setVisitLog] = useState<VisitLogEntry[]>([]);
+  const alertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastLoggedGestureRef = useRef<string | null>(null);
+
+  const clearAlertTimer = () => {
+    if (alertTimerRef.current) {
+      clearTimeout(alertTimerRef.current);
+      alertTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => () => clearAlertTimer(), []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -52,14 +64,31 @@ const CareStaffView = () => {
   };
 
   const onVisitMessage = useCallback((message: VisitMessage) => {
-    if (message.type === 'patient_gesture') {
-      if (message.gesture && message.stability >= 0.5) {
-        setTriageAlert(message.gesture as HospitalGesture);
-        addLog('patient', message.gesture.label, message.gesture.priority);
-      } else if (!message.rawGesture) {
-        setTriageAlert(null);
-      }
+    if (message.type !== 'patient_gesture' || !message.gesture || message.stability < 0.5) return;
+
+    const gesture = message.gesture as HospitalGesture;
+    const isNew = lastLoggedGestureRef.current !== gesture.mediapipeGesture;
+
+    setTriageAlert(gesture);
+    if (isNew) {
+      lastLoggedGestureRef.current = gesture.mediapipeGesture;
+      setVisitLog((prev) => [
+        {
+          id: `${Date.now()}-${prev.length}`,
+          time: new Date().toLocaleTimeString(),
+          side: 'patient',
+          text: gesture.label,
+          priority: gesture.priority,
+        },
+        ...prev.slice(0, 19),
+      ]);
     }
+
+    clearAlertTimer();
+    alertTimerRef.current = setTimeout(() => {
+      setTriageAlert(null);
+      lastLoggedGestureRef.current = null;
+    }, GESTURE_ALERT_DURATION_MS);
   }, []);
 
   const { publish, patientOnline } = useVisitRoom(roomId, 'staff', onVisitMessage);
@@ -108,6 +137,8 @@ const CareStaffView = () => {
   };
 
   const dismissTriage = () => {
+    clearAlertTimer();
+    lastLoggedGestureRef.current = null;
     setTriageAlert(null);
     publish({ type: 'triage_dismiss' });
   };
